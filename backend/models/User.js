@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
     role: { type: String, default: 'user' },
     platform: { type: String, enum: ['PC', 'Consola'], default: 'PC' },
     pcUsername: { type: String, default: '' },
-    consoleUsername: { type: String, default: '' }
+    consoleUsername: { type: String, default: '' },
+    discordUsername: { type: String, default: '' }
 });
 
 module.exports = mongoose.model('User', userSchema);

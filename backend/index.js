@@ -196,10 +196,11 @@ app.get('/api/users/profile/logs', authMiddleware, async (req, res) => {
 
 app.patch('/api/users/profile/link', authMiddleware, async (req, res) => {
     try {
-        const { pcUsername, consoleUsername } = req.body;
+        const { pcUsername, consoleUsername, discordUsername } = req.body;
         const user = await User.findById(req.user.id);
         if (pcUsername !== undefined) user.pcUsername = pcUsername;
         if (consoleUsername !== undefined) user.consoleUsername = consoleUsername;
+        if (discordUsername !== undefined) user.discordUsername = discordUsername;
         await user.save();
         res.json(user);
     } catch (err) { res.status(500).json({ error: 'Server error' }); }

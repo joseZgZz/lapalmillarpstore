@@ -18,6 +18,7 @@ import {
   Gamepad2,
   Link as LinkIcon,
   Save,
+  MessageSquare,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import API_URL from "../config/api";
@@ -27,14 +28,16 @@ const Profile = () => {
   const [logs, setLogs] = useState([]);
   const [linkForm, setLinkForm] = useState({
     pcUsername: "",
-    consoleUsername: ""
+    consoleUsername: "",
+    discordUsername: ""
   });
 
   useEffect(() => {
     if (user) {
       setLinkForm({
         pcUsername: user.pcUsername || "",
-        consoleUsername: user.consoleUsername || ""
+        consoleUsername: user.consoleUsername || "",
+        discordUsername: user.discordUsername || ""
       });
     }
   }, [user]);
@@ -208,6 +211,16 @@ const Profile = () => {
                     className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 font-bold"
                     value={linkForm.consoleUsername}
                     onChange={(e) => setLinkForm({ ...linkForm, consoleUsername: e.target.value })}
+                  />
+                </div>
+                <div className="relative group">
+                  <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-[#5865F2] transition-colors" size={16} />
+                  <input
+                    type="text"
+                    placeholder="Usuario de Discord (ej: jose.dev)"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-[#5865F2]/50 font-bold"
+                    value={linkForm.discordUsername}
+                    onChange={(e) => setLinkForm({ ...linkForm, discordUsername: e.target.value })}
                   />
                 </div>
                 <button onClick={handleUpdateLinks} className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2">
