@@ -198,6 +198,24 @@ app.post('/api/users/add-coins/:id', authMiddleware, adminMiddleware, async (req
     }
 });
 
+app.post('/api/users/manage-coins', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { username, amount, action } = req.body;
+        const user = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } });
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+        const change = parseInt(amount);
+        if (action === 'add') user.coins += change;
+        else user.coins = Math.max(0, user.coins - change);
+
+        await user.save();
+        await createLog('ADMIN', 'Manual Balance Adjustment', `Admin ha ${action === 'add' ? 'añadido' : 'quitado'} ${amount} monedas a ${user.username}.`);
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+});
+
 app.delete('/api/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         if (req.params.id === req.user.id) {

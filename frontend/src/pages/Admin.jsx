@@ -21,6 +21,7 @@ const Admin = () => {
     // Forms
     const [prodForm, setProdForm] = useState({ name: '', description: '', price: '', image: '', category: 'VIP' });
     const [announForm, setAnnounForm] = useState({ title: '', content: '', category: 'Update', color: 'bg-blue-500' });
+    const [manualBalanceForm, setManualBalanceForm] = useState({ username: '', amount: '', action: 'add' });
     const [selectedUser, setSelectedUser] = useState(null);
 
     useEffect(() => {
@@ -95,29 +96,6 @@ const Admin = () => {
         } catch (err) { }
     };
 
-    const handleAddCoins = async (targetUser) => {
-        const { value: amount } = await Swal.fire({
-            title: `Dar monedas a ${targetUser.username}`,
-            input: 'number',
-            inputLabel: 'Cantidad de Coins',
-            inputValue: 100,
-            showCancelButton: true,
-            background: '#0a0a0a',
-            color: '#fff',
-            confirmButtonColor: '#ffd000',
-            confirmButtonText: 'Otorgar'
-        });
-
-        if (amount) {
-            try {
-                const token = localStorage.getItem('token');
-                await axios.post(`${API_URL}/api/users/add-coins/${targetUser._id}`, { amount }, { headers: { Authorization: `Bearer ${token}` } });
-                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Coins Otorgados', showConfirmButton: false, timer: 1500, background: '#0a0a0a', color: '#fff' });
-                fetchData();
-            } catch (err) { Swal.fire('Error', 'No se pudo otorgar las monedas', 'error'); }
-        }
-    };
-
     const handleDeleteUser = async (id) => {
         const result = await Swal.fire({
             title: '¿ELIMINAR USUARIO?',
@@ -135,6 +113,22 @@ const Admin = () => {
             fetchData();
             Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Usuario Eliminado', showConfirmButton: false, timer: 1500, background: '#0a0a0a', color: '#fff' });
         } catch (err) { Swal.fire('Error', err.response?.data?.error || 'No se pudo eliminar', 'error'); }
+    };
+
+    const handleManualBalance = async (e) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem('token');
+            await axios.post(`${API_URL}/api/users/manage-coins`, manualBalanceForm, { headers: { Authorization: `Bearer ${token}` } });
+            Swal.fire({
+                toast: true, position: 'top-end', icon: 'success', title: 'Operación Exitosa',
+                showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff'
+            });
+            setManualBalanceForm({ username: '', amount: '', action: 'add' });
+            fetchData();
+        } catch (err) {
+            Swal.fire('Error', err.response?.data?.error || 'No se pudo realizar la operación', 'error');
+        }
     };
 
     if (!user || user.role !== 'admin') return <Navigate to="/" />;
@@ -219,39 +213,66 @@ const Admin = () => {
                                     </div>
                                     <button type="submit" className="w-full btn-card-primary py-5 rounded-3xl font-black text-lg tracking-[0.2em] !bg-blue-500">POSTEAR ANUNCIO</button>
                                 </form>
-                            ) : activeTab === 'users' && selectedUser ? (
+                            ) : activeTab === 'users' ? (
                                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
                                     <h2 className="text-xl font-black text-white mb-8 flex items-center gap-4 uppercase tracking-tighter">
-                                        <Settings className="text-secondary" /> Control de Usuario
+                                        <DollarSign className="text-secondary" size={24} /> Gestión de Balance
                                     </h2>
 
-                                    <div className="flex flex-col items-center p-8 bg-white/5 rounded-3xl border border-white/5">
-                                        <img src={selectedUser.avatar} className="w-24 h-24 rounded-[2rem] mb-4 border-2 border-secondary/50 p-1" alt="" />
-                                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter leading-none">{selectedUser.username}</h3>
-                                        <p className="text-gray-500 font-bold text-xs mt-2">{selectedUser.email}</p>
-                                        <div className="mt-6 flex items-center gap-2 px-4 py-2 bg-secondary/10 text-secondary rounded-full border border-secondary/20">
-                                            <Coins size={14} />
-                                            <span className="font-black text-sm">{selectedUser.coins} CC</span>
+                                    <form onSubmit={handleManualBalance} className="space-y-4">
+                                        <div className="space-y-4">
+                                            <input
+                                                type="text"
+                                                placeholder="Nombre Exacto del Usuario"
+                                                className="admin-input"
+                                                value={manualBalanceForm.username}
+                                                onChange={e => setManualBalanceForm({ ...manualBalanceForm, username: e.target.value })}
+                                                required
+                                            />
+                                            <input
+                                                type="number"
+                                                placeholder="Cantidad de Monedas"
+                                                className="admin-input"
+                                                value={manualBalanceForm.amount}
+                                                onChange={e => setManualBalanceForm({ ...manualBalanceForm, amount: e.target.value })}
+                                                required
+                                            />
+                                            <div className="flex gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setManualBalanceForm({ ...manualBalanceForm, action: 'add' })}
+                                                    className={`flex-1 py-3 rounded-2xl font-black text-[10px] tracking-widest transition-all ${manualBalanceForm.action === 'add' ? 'bg-secondary text-black shadow-lg shadow-secondary/20' : 'bg-white/5 text-gray-500'}`}
+                                                >AÑADIR</button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setManualBalanceForm({ ...manualBalanceForm, action: 'remove' })}
+                                                    className={`flex-1 py-3 rounded-2xl font-black text-[10px] tracking-widest transition-all ${manualBalanceForm.action === 'remove' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white/5 text-gray-500'}`}
+                                                >QUITAR</button>
+                                            </div>
                                         </div>
-                                    </div>
+                                        <button type="submit" className="w-full btn-card-primary py-5 rounded-3xl font-black text-sm tracking-[0.2em]">APLICAR CAMBIOS</button>
+                                    </form>
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <button onClick={() => handleAddCoins(selectedUser)} className="flex flex-col items-center justify-center gap-3 p-6 bg-secondary/10 border border-secondary/20 rounded-3xl hover:bg-secondary/20 transition-all group">
-                                            <PlusCircle className="text-secondary group-hover:scale-110 transition-transform" size={32} />
-                                            <span className="text-[10px] font-black text-white uppercase tracking-widest">Gestionar Saldo</span>
-                                        </button>
-                                        <button onClick={() => handleDeleteUser(selectedUser._id)} className="flex flex-col items-center justify-center gap-3 p-6 bg-primary/10 border border-primary/20 rounded-3xl hover:bg-primary/20 transition-all group">
-                                            <Trash2 className="text-primary group-hover:scale-110 transition-transform" size={32} />
-                                            <span className="text-[10px] font-black text-white uppercase tracking-widest text-center">Borrar Cuenta</span>
-                                        </button>
-                                    </div>
-
-                                    <button onClick={() => setSelectedUser(null)} className="w-full py-4 border border-white/5 text-gray-500 rounded-2xl text-xs font-black uppercase tracking-[0.3em] hover:text-white transition-colors">Cerrar Gestión</button>
+                                    {selectedUser && (
+                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pt-8 mt-8 border-t border-white/5 text-center">
+                                            <div className="flex items-center gap-4 mb-4 justify-center">
+                                                <img src={selectedUser.avatar} className="w-10 h-10 rounded-xl" alt="" />
+                                                <div className="text-left">
+                                                    <h4 className="font-bold text-white text-xs uppercase">{selectedUser.username}</h4>
+                                                    <p className="text-[10px] text-gray-500 font-bold">Estado: Seleccionado</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => handleDeleteUser(selectedUser._id)}
+                                                className="w-full py-3 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-xl text-[10px] font-black tracking-widest transition-all"
+                                            >ELIMINAR CUENTA DEFINITIVAMENTE</button>
+                                        </motion.div>
+                                    )}
                                 </motion.div>
                             ) : (
                                 <div className="text-center py-20 opacity-30">
                                     <Users size={60} className="mx-auto mb-4" />
-                                    <p className="font-black uppercase tracking-widest text-xs">{activeTab === 'users' ? 'Selecciona un usuario de la lista' : 'Gestión de Sistema'}</p>
+                                    <p className="font-black uppercase tracking-widest text-xs">Gestión de Sistema</p>
                                 </div>
                             )}
                         </section>
