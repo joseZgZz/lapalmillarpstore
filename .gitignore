@@ -6,11 +6,12 @@
 node_modules/
 */node_modules/
 
-# Variables de entorno (Subiendo al repo por petición del usuario - ¡CUIDADO!)
-# .env
+# Variables de entorno (Ocultando de nuevo por seguridad)
+.env
 .env.local
 .env.production
 .env.*.local
+**/.env
 
 # Archivos de build
 dist/
