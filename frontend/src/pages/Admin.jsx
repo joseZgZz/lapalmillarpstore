@@ -44,9 +44,11 @@ const Admin = () => {
 
         try {
             const res = await axios.get(`${API_URL}/api/categories`);
-            setCategories(res.data);
-            if (res.data.length > 0 && !prodForm.category) {
-                setProdForm(prev => ({ ...prev, category: res.data[0].name }));
+            if (Array.isArray(res.data)) {
+                setCategories(res.data);
+                if (res.data.length > 0 && !prodForm.category) {
+                    setProdForm(prev => ({ ...prev, category: res.data[0].name }));
+                }
             }
         } catch (e) { console.error("Error categorías", e); }
 
