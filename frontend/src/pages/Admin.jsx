@@ -32,6 +32,8 @@ import {
     Hash,
     Layers,
     ImagePlus,
+    Monitor,
+    Gamepad2,
 } from "lucide-react";
 import API_URL from "../config/api";
 
@@ -496,7 +498,10 @@ const Admin = () => {
                                         <button key={u._id} onClick={() => { setSelectedUserForAction(u); setManualBalanceForm(prev => ({ ...prev, username: u.username })) }} className={["w-full flex items-center gap-4 p-4 rounded-2xl transition-all border", selectedUserForAction?._id === u._id ? 'bg-primary/20 border-primary/30' : 'hover:bg-white/10 border-transparent'].join(" ")}>
                                             <img src={u.avatar || "https://ui-avatars.com/api/?name=User&background=random"} className="w-10 h-10 rounded-xl" alt="" />
                                             <div className="text-left flex-1 text-sm font-bold truncate">
-                                                <p className="text-white truncate">{u.username}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="text-white truncate">{u.username}</p>
+                                                    {u.platform === "PC" ? <Monitor size={12} className="text-secondary opacity-50" /> : <Gamepad2 size={12} className="text-primary opacity-50" />}
+                                                </div>
                                                 <p className="text-gray-400">{u.coins} CC</p>
                                             </div>
                                             <ChevronRight className="text-gray-500" size={16} />
@@ -510,7 +515,12 @@ const Admin = () => {
                                         <>
                                             {/* Gestor de Coins */}
                                             <div className="bg-secondary/10 border-2 border-secondary/20 rounded-3xl p-6">
-                                                <h3 className="text-xs font-black text-secondary uppercase tracking-[0.2em] mb-4">Balance Manual</h3>
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <h3 className="text-xs font-black text-secondary uppercase tracking-[0.2em]">Balance Manual</h3>
+                                                    <span className={["px-3 py-1 rounded-full text-[10px] font-black uppercase border", selectedUserForAction.platform === "PC" ? "bg-secondary/20 border-secondary/30 text-secondary" : "bg-primary/20 border-primary/30 text-primary"].join(" ")}>
+                                                        {selectedUserForAction.platform || 'Sin Plataforma'}
+                                                    </span>
+                                                </div>
                                                 <div className="flex flex-col sm:flex-row gap-4">
                                                     <input type="text" readOnly className="admin-input flex-1 bg-white/5 text-gray-400 cursor-not-allowed" value={selectedUserForAction.username} />
                                                     <input type="number" placeholder="Cantidad de Coins" className="admin-input w-full sm:w-40" value={manualBalanceForm.amount} onChange={(e) => setManualBalanceForm({ ...manualBalanceForm, amount: e.target.value })} />

@@ -72,15 +72,15 @@ const createLog = async (username, action, details) => {
 // --- AUTH ROUTES ---
 app.post('/api/auth/register', async (req, res) => {
     try {
-        const { username, email, password, birthdate } = req.body;
+        const { username, email, password, birthdate, platform } = req.body;
         if (!username || !email || !password || !birthdate) return res.status(400).json({ error: 'Todos los campos son obligatorios' });
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) return res.status(400).json({ error: 'El email o usuario ya está en uso' });
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const newUser = new User({ username, email, password: hashedPassword, birthdate, avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random&color=fff` });
+        const newUser = new User({ username, email, password: hashedPassword, birthdate, platform: platform || 'PC', avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random&color=fff` });
         await newUser.save();
-        const token = jwt.sign({ id: newUser._id, role: newUser.role }, process.env.JWT_SECRET || 'secret123', { expiresIn: '7d' });
+        const token = jwt.sign({ id: newUser._id, role: newUser.role, platform: newUser.platform }, process.env.JWT_SECRET || 'secret123', { expiresIn: '7d' });
         res.json({ token, message: 'Registro exitoso' });
     } catch (err) { res.status(500).json({ error: 'Error del servidor' }); }
 });

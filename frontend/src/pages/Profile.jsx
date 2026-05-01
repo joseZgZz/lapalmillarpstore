@@ -14,6 +14,8 @@ import {
   Coins,
   CreditCard,
   Clock,
+  Monitor,
+  Gamepad2,
 } from "lucide-react";
 import API_URL from "../config/api";
 
@@ -74,11 +76,21 @@ const Profile = () => {
             </div>
 
             <div className="flex-1 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 rounded-full border border-primary/20 mb-4">
-                <ShieldCheck size={14} className="text-primary" />
-                <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
-                  {user.role || "Player"} Verified
-                </span>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 rounded-full border border-primary/20">
+                  <ShieldCheck size={14} className="text-primary" />
+                  <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+                    {user.role || "Player"} Verified
+                  </span>
+                </div>
+                {user.platform && (
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary/10 rounded-full border border-secondary/20">
+                    {user.platform === "PC" ? <Monitor size={14} className="text-secondary" /> : <Gamepad2 size={14} className="text-secondary" />}
+                    <span className="text-[10px] font-black text-secondary uppercase tracking-[0.2em]">
+                      {user.platform} Player
+                    </span>
+                  </div>
+                )}
               </div>
               <h1 className="text-5xl font-display font-black text-white mb-2 tracking-tighter uppercase">
                 {user.username}
