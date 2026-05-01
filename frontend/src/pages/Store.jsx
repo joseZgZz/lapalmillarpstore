@@ -82,18 +82,25 @@ return (
                     <div className="space-y-1">
                         {categories.map(cat => {
                         const Icon = iconMap[cat.icon] || Package;
+                        const isActive = activeCategory === cat.name;
+                        let btnClassesArr = ["w-full", "flex", "items-center", "justify-between", "px-4", "py-3"];
+                        btnClassesArr.push("rounded-2xl", "font-bold", "transition-all", "group");
+                        if (isActive) {
+                        btnClassesArr.push("bg-primary", "text-white", "shadow-lg", "shadow-primary/20");
+                        } else {
+                        btnClassesArr.push("text-gray-400", "hover:text-white", "hover:bg-white/5");
+                        }
+                        const separator = " ";
+                        const btnClasses = btnClassesArr.join(separator);
+
                         return (
-                        <button key={cat._id} onClick={()=> setActiveCategory(cat.name)}
-                            className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl font-bold
-                            transition-all group ${activeCategory === cat.name ? 'bg-primary text-white shadow-lg
-                            shadow-primary/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
-                            >
+                        <button key={cat._id} onClick={()=> setActiveCategory(cat.name)} className={btnClasses}>
                             <div className="flex items-center gap-3">
-                                <Icon size={18} className={activeCategory===cat.name ? 'text-white'
+                                <Icon size={18} className={isActive ? 'text-white'
                                     : 'text-gray-600 group-hover:text-primary' } />
                                 <span className="text-sm capitalize">{cat.name}</span>
                             </div>
-                            {activeCategory === cat.name &&
+                            {isActive &&
                             <Check size={14} />}
                         </button>
                         );
@@ -115,7 +122,8 @@ return (
             <div className="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-5xl font-display font-black text-white tracking-tighter uppercase mb-2">TIENDA
-                        <span className="text-primary italic">NEXUS</span></h1>
+                        <span className="text-primary italic">NEXUS</span>
+                    </h1>
                     <div className="flex items-center gap-2 text-gray-500">
                         <span className="text-xs font-bold uppercase tracking-widest">{activeCategory ||
                             'Cargando...'}</span>
