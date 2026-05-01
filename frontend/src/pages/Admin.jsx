@@ -61,6 +61,11 @@ const Admin = () => {
         amount: "",
         action: "add",
     });
+    const [jobForm, setJobForm] = useState({
+        userId: "",
+        jobName: "",
+        jobRole: ""
+    });
 
     useEffect(() => {
         if (user && user.role === "admin") {
@@ -216,6 +221,21 @@ const Admin = () => {
             });
         } catch (err) {
             Swal.fire("Error", "Fallo", "error");
+        }
+    };
+
+    const handleAssignJob = async (e) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem("token");
+            await axios.post(`${API_URL}/api/admin/assign-job`, jobForm, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            Swal.fire("Éxito", "Trabajo asignado correctamente", "success");
+            setJobForm({ userId: "", jobName: "", jobRole: "" });
+            fetchData();
+        } catch (err) {
+            Swal.fire("Error", err.response?.data?.error || "Error al asignar", "error");
         }
     };
 
@@ -409,6 +429,45 @@ const Admin = () => {
                                     </span>
                                 ))}
                             </div>
+                        </section>
+
+                        {/* GESTIÓN DE EMPLEOS */}
+                        <section className="glass-card rounded-[3.5rem] p-10 border border-white/5 bg-secondary/5 border-secondary/10">
+                            <h3 className="text-[10px] font-black text-secondary uppercase tracking-[0.4em] mb-8">
+                                Asignar Trabajos / Roles
+                            </h3>
+                            <form onSubmit={handleAssignJob} className="space-y-4">
+                                <select
+                                    className="admin-input border-secondary/10"
+                                    value={jobForm.userId}
+                                    onChange={(e) => setJobForm({ ...jobForm, userId: e.target.value })}
+                                    required
+                                >
+                                    <option value="">-- Ciudadano --</option>
+                                    {users.map(u => (
+                                        <option key={u._id} value={u._id}>{u.username}</option>
+                                    ))}
+                                </select>
+                                <input
+                                    type="text"
+                                    placeholder="Nombre Negocio (Ej: Policia)"
+                                    className="admin-input border-secondary/10"
+                                    value={jobForm.jobName}
+                                    onChange={(e) => setJobForm({ ...jobForm, jobName: e.target.value })}
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Rango (Ej: Comisario)"
+                                    className="admin-input border-secondary/10"
+                                    value={jobForm.jobRole}
+                                    onChange={(e) => setJobForm({ ...jobForm, jobRole: e.target.value })}
+                                    required
+                                />
+                                <button type="submit" className="w-full py-4 bg-secondary text-black rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-secondary/10 hover:scale-[1.02] transition-all">
+                                    ASIGNAR TRABAJO
+                                </button>
+                            </form>
                         </section>
                     </div>
 

@@ -16,6 +16,11 @@ const userSchema = new mongoose.Schema({
     battlePass: {
         currentLevel: { type: Number, default: 1 },
         lastClaimed: { type: Date, default: null }
+    },
+    job: {
+        name: { type: String, default: '' },
+        role: { type: String, default: '' },
+        isOpen: { type: Boolean, default: false }
     }
 });
 

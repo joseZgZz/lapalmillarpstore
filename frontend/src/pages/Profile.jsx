@@ -19,6 +19,7 @@ import {
   Link as LinkIcon,
   Save,
   MessageSquare,
+  Briefcase,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import API_URL from "../config/api";
@@ -154,6 +155,68 @@ const Profile = () => {
             </div>
           </motion.div>
         </header>
+
+        {/* INFO CARDS */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          {/* TRABAJO / NEGOCIO */}
+          {user.job?.name && (
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="glass-card p-10 rounded-[3rem] border border-secondary/20 bg-secondary/5 relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 blur-[60px] pointer-events-none"></div>
+              <div className="flex items-center gap-5 mb-8">
+                <div className="p-4 bg-secondary/20 rounded-2xl text-secondary">
+                  <Briefcase size={28} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-1">Tu Negocio</p>
+                  <h4 className="text-xl font-black text-white uppercase tracking-tighter leading-none">{user.job.name}</h4>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-between items-center px-4 py-3 bg-black/40 rounded-2xl">
+                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Estado</span>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${user.job.isOpen ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${user.job.isOpen ? 'text-green-500' : 'text-red-500'}`}>
+                      {user.job.isOpen ? 'ABIERTO' : 'CERRADO'}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={async () => {
+                    try {
+                      const token = localStorage.getItem("token");
+                      await axios.post(`${API_URL}/api/user/toggle-job`, {}, {
+                        headers: { Authorization: `Bearer ${token}` }
+                      });
+                      checkAuth();
+                      Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Estado actualizado',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        background: '#0a0a0a',
+                        color: '#fff'
+                      });
+                    } catch (e) { console.error(e); }
+                  }}
+                  className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${user.job.isOpen
+                    ? "bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20"
+                    : "bg-green-500/10 text-green-500 border border-green-500/20 hover:bg-green-500/20"
+                    }`}
+                >
+                  {user.job.isOpen ? 'CERRAR NEGOCIO' : 'ABRIR NEGOCIO'}
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Stats & Wallet - Left Side */}

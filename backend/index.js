@@ -296,6 +296,39 @@ app.post('/api/battlepass/claim', authMiddleware, async (req, res) => {
     } catch (err) { res.status(500).json({ error: 'Error del servidor' }); }
 });
 
+// --- JOB & BUSINESS SYSTEM ---
+app.post('/api/admin/assign-job', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { userId, jobName, jobRole } = req.body;
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+        user.job.name = jobName;
+        user.job.role = jobRole;
+        user.job.isOpen = false;
+        await user.save();
+        res.json({ message: 'Trabajo asignado correctamente', user });
+    } catch (err) { res.status(500).json({ error: 'Error del servidor' }); }
+});
+
+app.post('/api/user/toggle-job', authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user.job.name) return res.status(400).json({ error: 'No tienes un trabajo asignado' });
+
+        user.job.isOpen = !user.job.isOpen;
+        await user.save();
+        res.json({ message: `Negocio ${user.job.isOpen ? 'Abrir' : 'Cerrar'} exitoso`, user });
+    } catch (err) { res.status(500).json({ error: 'Error del servidor' }); }
+});
+
+app.get('/api/jobs/open', async (req, res) => {
+    try {
+        const usersWithJobs = await User.find({ "job.isOpen": true }).select('username job');
+        res.json(usersWithJobs);
+    } catch (err) { res.status(500).json({ error: 'Error del servidor' }); }
+});
+
 app.post('/api/users/manage-coins', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const { username, amount, action } = req.body;

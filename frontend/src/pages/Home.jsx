@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -14,6 +14,7 @@ import {
     Users,
     Server,
     Crown,
+    Briefcase,
 } from "lucide-react";
 import API_URL from "../config/api";
 
@@ -23,6 +24,7 @@ const Home = () => {
     const [loginEmail, setLoginEmail] = useState("");
     const [loginPassword, setLoginPassword] = useState("");
     const [featured, setFeatured] = useState([]);
+    const [openJobs, setOpenJobs] = useState([]);
 
     useEffect(() => {
         const fetchFeatured = async () => {
@@ -35,7 +37,19 @@ const Home = () => {
             } catch (err) { }
         };
         fetchFeatured();
-    }, [user]);
+    }, []);
+
+    useEffect(() => {
+        const fetchJobs = async () => {
+            try {
+                const res = await axios.get(`${API_URL}/api/jobs/open`);
+                setOpenJobs(res.data);
+            } catch (err) { console.error(err); }
+        };
+        fetchJobs();
+        const interval = setInterval(fetchJobs, 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -340,6 +354,49 @@ const Home = () => {
                             Monitorización
                         </span>
                     </div>
+                </div>
+            </section>
+
+            {/* OPEN BUSINESSES SECTION */}
+            <section className="py-20 relative px-4">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex items-center gap-4 mb-12">
+                        <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary">
+                            <Briefcase size={24} />
+                        </div>
+                        <div>
+                            <h2 className="text-3xl font-display font-black text-white italic uppercase">Servicios <span className="text-secondary">Activos</span></h2>
+                            <p className="text-gray-500 font-medium text-sm">Negocios abiertos en la ciudad ahora mismo</p>
+                        </div>
+                    </div>
+
+                    {openJobs.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            {openJobs.map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    whileInView={{ opacity: 1, scale: 1 }}
+                                    className="glass-card p-6 rounded-3xl border-secondary/20 bg-secondary/5 relative overflow-hidden"
+                                >
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/10 blur-3xl rounded-full"></div>
+                                    <div className="relative z-10">
+                                        <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2 block">{item.job.role}</span>
+                                        <h3 className="text-xl font-black text-white mb-1 uppercase tracking-tighter">{item.job.name}</h3>
+                                        <p className="text-xs text-gray-400">Responsable: <span className="text-white font-bold">{item.username}</span></p>
+                                        <div className="mt-4 flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                            <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest">ABIERTO</span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="glass-card p-12 rounded-[3rem] text-center border-white/5">
+                            <p className="text-gray-500 font-medium">No hay negocios registrados abiertos en este momento.</p>
+                        </div>
+                    )}
                 </div>
             </section>
         </div>
