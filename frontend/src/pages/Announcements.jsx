@@ -22,7 +22,7 @@ const Announcements = () => {
       try {
         const res = await axios.get(`${API_URL}/api/announcements`);
         setNews(res.data);
-      } catch (err) {}
+      } catch (err) { }
       setLoading(false);
     };
     fetchAnnouncements();
@@ -149,9 +149,14 @@ const Announcements = () => {
               Configura las notificaciones en nuestro servidor de Discord para
               recibir alertas instantáneas en tu dispositivo.
             </p>
-            <button className="bg-[#5865F2] hover:bg-[#4752C4] text-white px-10 py-5 rounded-2xl font-black text-lg transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#5865F2]/20">
+            <a
+              href="https://discord.gg/lapalmillarp"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#5865F2] hover:bg-[#4752C4] text-white px-10 py-5 rounded-2xl font-black text-lg transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#5865F2]/20 flex items-center justify-center gap-3"
+            >
               UNIRSE A DISCORD OFICIAL
-            </button>
+            </a>
           </div>
         </div>
       </div>

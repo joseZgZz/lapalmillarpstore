@@ -11,7 +11,15 @@ const Footer = () => {
                     La Palmilla Store
                 </span>
             </Link>
-            <p className="text-gray-500 text-xs">
+            <div className="flex justify-center gap-6 mb-6">
+                <a href="https://discord.gg/lapalmillarp" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#5865F2] transition-colors text-sm font-bold uppercase tracking-widest">
+                    Discord Oficial
+                </a>
+                <a href="https://discord.gg/lapalmillarp" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-primary transition-colors text-sm font-bold uppercase tracking-widest">
+                    Soporte Técnico
+                </a>
+            </div>
+            <p className="text-gray-400 text-[10px] uppercase tracking-widest opacity-50">
                 © 2026 La Palmilla Store. Todos los derechos reservados.
             </p>
         </footer>

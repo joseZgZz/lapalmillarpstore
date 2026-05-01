@@ -25,6 +25,19 @@ const Home = () => {
     const [loginPassword, setLoginPassword] = useState("");
     const [featured, setFeatured] = useState([]);
     const [openJobs, setOpenJobs] = useState([]);
+    const [recentPurchases, setRecentPurchases] = useState([]);
+
+    useEffect(() => {
+        const fetchRecent = async () => {
+            try {
+                const res = await axios.get(`${API_URL}/api/purchases/recent`);
+                setRecentPurchases(res.data);
+            } catch (err) { }
+        };
+        fetchRecent();
+        const interval = setInterval(fetchRecent, 30000); // Update every 30s
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         const fetchFeatured = async () => {
@@ -66,8 +79,41 @@ const Home = () => {
         }
     };
 
+    const formatTimeAgo = (date) => {
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        if (seconds < 60) return `${seconds}s`;
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h`;
+        return `${Math.floor(hours / 24)}d`;
+    };
+
     return (
         <div className="bg-[#0a0a0a] min-h-screen relative overflow-x-hidden">
+            {/* RECENT PURCHASES TICKER */}
+            <div className="fixed top-24 w-full z-40 h-10 bg-primary/10 backdrop-blur-md border-y border-white/5 flex items-center overflow-hidden">
+                <div className="whitespace-nowrap flex animate-marquee">
+                    {[...recentPurchases, ...recentPurchases].map((purchase, i) => (
+                        <div key={i} className="flex items-center gap-2 px-10 border-r border-white/5">
+                            <ShoppingCart size={14} className="text-primary" />
+                            <span className="text-[10px] font-black text-white uppercase italic">
+                                {purchase.username}
+                            </span>
+                            <span className="text-[10px] font-bold text-gray-500 lowercase">
+                                adquirió
+                            </span>
+                            <span className="text-[10px] font-black text-secondary uppercase">
+                                {purchase.productName}
+                            </span>
+                            <span className="text-[10px] font-bold text-gray-600 bg-white/5 px-2 py-0.5 rounded-full ml-1">
+                                hace {formatTimeAgo(purchase.date)}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
             {/* HEROBANNER - TEBEX STYLE */}
             <section className="relative w-full min-h-screen flex items-center justify-center pt-24 bg-grid">
                 {/* Background Decor */}
@@ -122,16 +168,24 @@ const Home = () => {
                             </button>
 
                             {!user && (
-                                <button
-                                    onClick={() =>
-                                        document
-                                            .getElementById("login-section")
-                                            .scrollIntoView({ behavior: "smooth" })
-                                    }
-                                    className="bg-white/5 hover:bg-white/10 text-white px-10 py-5 rounded-2xl font-black text-xl border border-white/10 transition-all active:scale-95"
-                                >
-                                    INGRESAR
-                                </button>
+                                <div className="flex flex-col sm:flex-row items-center gap-4 mt-6 sm:mt-0">
+                                    <button
+                                        onClick={() =>
+                                            document
+                                                .getElementById("login-section")
+                                                .scrollIntoView({ behavior: "smooth" })
+                                        }
+                                        className="bg-white/5 hover:bg-white/10 text-white px-10 py-5 rounded-2xl font-black text-xl border border-white/10 transition-all active:scale-95"
+                                    >
+                                        INGRESAR
+                                    </button>
+                                    <button
+                                        onClick={() => navigate("/register")}
+                                        className="bg-secondary text-black px-10 py-5 rounded-2xl font-black text-xl border border-secondary transition-all hover:scale-105 active:scale-95 shadow-lg shadow-secondary/20"
+                                    >
+                                        REGISTRARSE
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </motion.div>
@@ -139,6 +193,87 @@ const Home = () => {
 
                 <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-20 pointer-events-none">
                     <div className="w-1 h-10 bg-gradient-to-b from-white to-transparent rounded-full"></div>
+                </div>
+            </section>
+
+            {/* STATS SECTION - MOVED UP (+2500) */}
+            <section className="py-20 max-w-7xl mx-auto px-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 border-y border-white/5 py-12">
+                    <div className="text-center">
+                        <span className="text-6xl font-display font-black text-white block mb-2 tracking-tighter">
+                            +2500
+                        </span>
+                        <span className="text-xs font-black text-primary uppercase tracking-[0.4em]">
+                            Usuarios Activos
+                        </span>
+                    </div>
+                    <div className="text-center">
+                        <span className="text-6xl font-display font-black text-white block mb-2 tracking-tighter">
+                            1.200+
+                        </span>
+                        <span className="text-xs font-black text-secondary uppercase tracking-[0.4em]">
+                            Ventas Totales
+                        </span>
+                    </div>
+                    <div className="text-center">
+                        <span className="text-6xl font-display font-black text-white block mb-2 tracking-tighter">
+                            24/7
+                        </span>
+                        <span className="text-xs font-black text-blue-500 uppercase tracking-[0.4em]">
+                            Monitorización
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            {/* OPEN BUSINESSES SECTION - MOVED UP */}
+            <section className="py-20 relative px-4 bg-white/[0.02]">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex items-center gap-4 mb-12">
+                        <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary">
+                            <Briefcase size={24} />
+                        </div>
+                        <div>
+                            <h2 className="text-3xl font-display font-black text-white italic uppercase">Servicios <span className="text-secondary">Activos</span></h2>
+                            <p className="text-gray-500 font-medium text-sm">Negocios abiertos en la ciudad ahora mismo</p>
+                        </div>
+                    </div>
+
+                    {openJobs.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            {openJobs.map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    whileInView={{ opacity: 1, scale: 1 }}
+                                    className="glass-card p-6 rounded-3xl border-secondary/20 bg-secondary/5 relative overflow-hidden group"
+                                >
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/10 blur-3xl rounded-full"></div>
+
+                                    {item.job.image && (
+                                        <div className="h-32 mb-4 rounded-2xl overflow-hidden relative">
+                                            <img src={item.job.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                        </div>
+                                    )}
+
+                                    <div className="relative z-10">
+                                        <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2 block">{item.job.role}</span>
+                                        <h3 className="text-xl font-black text-white mb-1 uppercase tracking-tighter">{item.job.name}</h3>
+                                        <p className="text-xs text-gray-400">Responsable: <span className="text-white font-bold">{item.username}</span></p>
+                                        <div className="mt-4 flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                            <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest">ABIERTO</span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="glass-card p-12 rounded-[3rem] text-center border-white/5">
+                            <p className="text-gray-500 font-medium">No hay negocios registrados abiertos en este momento.</p>
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -256,18 +391,23 @@ const Home = () => {
                             datos y transacciones.
                         </p>
                     </div>
-                    <div className="flex flex-col items-center text-center p-8 bg-[#111] rounded-[2.5rem] border border-white/5">
-                        <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-6 shadow-[0_0_30px_rgba(59,130,246,0.1)]">
+                    <a
+                        href="https://discord.gg/lapalmillarp"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center text-center p-8 bg-[#111] rounded-[2.5rem] border border-white/5 hover:border-primary/50 transition-all group"
+                    >
+                        <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-6 shadow-[0_0_30px_rgba(59,130,246,0.1)] group-hover:scale-110 transition-transform">
                             <Crown size={32} />
                         </div>
                         <h4 className="text-2xl font-black text-white mb-4 uppercase tracking-tighter">
                             Soporte 24/7
                         </h4>
                         <p className="text-gray-400 font-medium">
-                            Nuestro equipo técnico está siempre disponible para ayudarte con
-                            cualquier problema o duda.
+                            ¿Necesitas ayuda? Únete a nuestro Discord para soporte inmediato
+                            y toda la información del servidor.
                         </p>
-                    </div>
+                    </a>
                 </div>
             </section>
 
@@ -327,86 +467,6 @@ const Home = () => {
                 </section>
             )}
 
-            {/* STATS SECTION */}
-            <section className="py-32 max-w-7xl mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 border-t border-white/5 pt-32">
-                    <div className="text-center">
-                        <span className="text-6xl font-display font-black text-white block mb-2 tracking-tighter">
-                            5.000+
-                        </span>
-                        <span className="text-xs font-black text-primary uppercase tracking-[0.4em]">
-                            Usuarios Activos
-                        </span>
-                    </div>
-                    <div className="text-center">
-                        <span className="text-6xl font-display font-black text-white block mb-2 tracking-tighter">
-                            1.200+
-                        </span>
-                        <span className="text-xs font-black text-secondary uppercase tracking-[0.4em]">
-                            Ventas Totales
-                        </span>
-                    </div>
-                    <div className="text-center">
-                        <span className="text-6xl font-display font-black text-white block mb-2 tracking-tighter">
-                            24/7
-                        </span>
-                        <span className="text-xs font-black text-blue-500 uppercase tracking-[0.4em]">
-                            Monitorización
-                        </span>
-                    </div>
-                </div>
-            </section>
-
-            {/* OPEN BUSINESSES SECTION */}
-            <section className="py-20 relative px-4">
-                <div className="max-w-7xl mx-auto">
-                    <div className="flex items-center gap-4 mb-12">
-                        <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary">
-                            <Briefcase size={24} />
-                        </div>
-                        <div>
-                            <h2 className="text-3xl font-display font-black text-white italic uppercase">Servicios <span className="text-secondary">Activos</span></h2>
-                            <p className="text-gray-500 font-medium text-sm">Negocios abiertos en la ciudad ahora mismo</p>
-                        </div>
-                    </div>
-
-                    {openJobs.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            {openJobs.map((item, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    whileInView={{ opacity: 1, scale: 1 }}
-                                    className="glass-card p-6 rounded-3xl border-secondary/20 bg-secondary/5 relative overflow-hidden group"
-                                >
-                                    <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/10 blur-3xl rounded-full"></div>
-
-                                    {item.job.image && (
-                                        <div className="h-32 mb-4 rounded-2xl overflow-hidden relative">
-                                            <img src={item.job.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                        </div>
-                                    )}
-
-                                    <div className="relative z-10">
-                                        <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2 block">{item.job.role}</span>
-                                        <h3 className="text-xl font-black text-white mb-1 uppercase tracking-tighter">{item.job.name}</h3>
-                                        <p className="text-xs text-gray-400">Responsable: <span className="text-white font-bold">{item.username}</span></p>
-                                        <div className="mt-4 flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                                            <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest">ABIERTO</span>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="glass-card p-12 rounded-[3rem] text-center border-white/5">
-                            <p className="text-gray-500 font-medium">No hay negocios registrados abiertos en este momento.</p>
-                        </div>
-                    )}
-                </div>
-            </section>
         </div>
     );
 };

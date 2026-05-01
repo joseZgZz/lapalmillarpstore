@@ -17,6 +17,7 @@ import BattlePass from "./pages/BattlePass";
 import Announcements from "./pages/Announcements";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import AuthSuccess from "./pages/AuthSuccess";
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -55,6 +56,7 @@ const App = () => {
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/auth-success" element={<AuthSuccess />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>

@@ -55,7 +55,9 @@ const Admin = () => {
         category: "",
     });
     const [isEditing, setIsEditing] = useState(null);
+    const [isEditingCategory, setIsEditingCategory] = useState(null);
     const [catNameInput, setCatNameInput] = useState("");
+    const [catIconInput, setCatIconInput] = useState("Package");
     const [manualBalanceForm, setManualBalanceForm] = useState({
         username: "",
         amount: "",
@@ -154,51 +156,59 @@ const Admin = () => {
         }
     };
 
-    const handleCreateCategory = async () => {
+    const handleSaveCategory = async () => {
         if (!catNameInput) return;
         try {
             const token = localStorage.getItem("token");
-            await axios.post(
-                `${API_URL}/api/categories`,
-                { name: catNameInput, icon: "Package" },
-                { headers: { Authorization: `Bearer ${token}` } },
-            );
+            if (isEditingCategory) {
+                await axios.put(
+                    `${API_URL}/api/categories/${isEditingCategory}`,
+                    { name: catNameInput, icon: catIconInput },
+                    { headers: { Authorization: `Bearer ${token}` } },
+                );
+            } else {
+                await axios.post(
+                    `${API_URL}/api/categories`,
+                    { name: catNameInput, icon: catIconInput },
+                    { headers: { Authorization: `Bearer ${token}` } },
+                );
+            }
             setCatNameInput("");
+            setCatIconInput("Package");
+            setIsEditingCategory(null);
             fetchData();
             Swal.fire({
                 toast: true,
                 position: "top-end",
                 icon: "success",
-                title: "Categoría Creada",
+                title: isEditingCategory ? "Categoría Actualizada" : "Categoría Creada",
                 background: "#0a0a0a",
                 color: "#fff",
             });
-        } catch (err) { }
+        } catch (err) {
+            Swal.fire("Error", "No se pudo guardar la categoría", "error");
+        }
     };
 
-    const handleDeleteCategoryByName = async () => {
-        if (!catNameInput) return;
-        const cat = categories.find(
-            (c) => c.name.toLowerCase() === catNameInput.toLowerCase(),
-        );
-        if (!cat)
-            return Swal.fire("No encontrada", "Escribe el nombre exacto", "error");
-        try {
-            const token = localStorage.getItem("token");
-            await axios.delete(`${API_URL}/api/categories/${cat._id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setCatNameInput("");
-            fetchData();
-            Swal.fire({
-                toast: true,
-                position: "top-end",
-                icon: "success",
-                title: "Borrada",
-                background: "#0a0a0a",
-                color: "#fff",
-            });
-        } catch (err) { }
+    const handleDeleteCategory = async (id) => {
+        const res = await Swal.fire({
+            title: "¿Borrar categoría?",
+            text: "Esto puede afectar a los productos asociados",
+            icon: "warning",
+            showCancelButton: true,
+            background: "#0a0a0a",
+            color: "#fff",
+        });
+        if (res.isConfirmed) {
+            try {
+                const token = localStorage.getItem("token");
+                await axios.delete(`${API_URL}/api/categories/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                fetchData();
+                Swal.fire("Borrada", "", "success");
+            } catch (err) { }
+        }
     };
 
     const handleCoinsAction = async (action) => {
@@ -386,48 +396,110 @@ const Admin = () => {
                             </form>
                         </section>
 
-                        {/* 2. GESTIONAR CATEGORÍAS (DEBAJO DEL PRODUCTO) */}
+                        {/* 2. GESTIONAR CATEGORÍAS */}
                         <section className="glass-card rounded-[3.5rem] p-10 border border-white/5 bg-secondary/[0.02]">
                             <h2 className="text-2xl font-display font-black text-white flex items-center gap-4 uppercase tracking-tighter mb-4">
-                                <Layers className="text-secondary" /> CONFIGURAR CATEGORÍAS
+                                <Layers className="text-secondary" /> {isEditingCategory ? "EDITAR CATEGORÍA" : "CONFIGURAR CATEGORÍAS"}
                             </h2>
-                            <p className="text-[10px] text-gray-500 font-black mb-8 uppercase tracking-widest leading-loose">
-                                Escribe el nombre y usa los botones para añadir o quitar
-                                secciones de la tienda.
-                            </p>
-                            <div className="space-y-4">
-                                <input
-                                    type="text"
-                                    placeholder="VIP, Vehículos, Dinero..."
-                                    className="admin-input border-secondary/20"
-                                    value={catNameInput}
-                                    onChange={(e) => setCatNameInput(e.target.value)}
-                                />
-                                <div className="flex gap-4">
+
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2 px-1">Nombre de Categoría</label>
+                                    <input
+                                        type="text"
+                                        placeholder="VIP, Vehículos, Dinero..."
+                                        className="admin-input border-secondary/20"
+                                        value={catNameInput}
+                                        onChange={(e) => setCatNameInput(e.target.value)}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-4 px-1">Seleccionar Icono</label>
+                                    <div className="grid grid-cols-5 gap-3 p-4 bg-black/40 rounded-3xl border border-white/5">
+                                        {[
+                                            { n: 'Package', i: Package },
+                                            { n: 'Star', i: Star },
+                                            { n: 'Car', i: Car },
+                                            { n: 'Coins', i: Coins },
+                                            { n: 'Scale', i: Scale },
+                                            { n: 'ShieldAlert', i: ShieldAlert },
+                                            { n: 'Layers', i: Layers },
+                                            { n: 'Zap', i: Zap },
+                                            { n: 'Briefcase', i: Briefcase },
+                                            { n: 'Trophy', i: Trophy },
+                                            { n: 'Gamepad2', i: Gamepad2 },
+                                            { n: 'Users', i: Users },
+                                            { n: 'Bell', i: Bell },
+                                            { n: 'Calendar', i: Calendar },
+                                            { n: 'Hash', i: Hash }
+                                        ].map((item) => (
+                                            <button
+                                                key={item.n}
+                                                type="button"
+                                                onClick={() => setCatIconInput(item.n)}
+                                                className={`p-3 rounded-xl flex items-center justify-center transition-all ${catIconInput === item.n ? 'bg-secondary text-black shadow-lg shadow-secondary/20' : 'bg-white/5 text-gray-500 hover:text-white'}`}
+                                            >
+                                                <item.i size={20} />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4 pt-2">
                                     <button
-                                        onClick={handleCreateCategory}
-                                        className="flex-1 py-4 bg-secondary text-black rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-secondary/10"
+                                        onClick={handleSaveCategory}
+                                        className="flex-1 py-4 bg-secondary text-black rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-secondary/10 hover:scale-[1.02] transition-all"
                                     >
-                                        AÑADIR
+                                        {isEditingCategory ? "ACTUALIZAR" : "CREAR CATEGORÍA"}
                                     </button>
-                                    <button
-                                        onClick={handleDeleteCategoryByName}
-                                        className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/10"
-                                    >
-                                        ELIMINAR
-                                    </button>
+                                    {isEditingCategory && (
+                                        <button
+                                            onClick={() => {
+                                                setIsEditingCategory(null);
+                                                setCatNameInput("");
+                                                setCatIconInput("Package");
+                                            }}
+                                            className="px-6 py-4 bg-white/5 text-gray-500 rounded-2xl font-black text-[10px] uppercase hover:text-white"
+                                        >
+                                            CANCELAR
+                                        </button>
+                                    )}
                                 </div>
                             </div>
-                            <div className="mt-8 flex flex-wrap gap-2">
-                                {categories.map((c) => (
-                                    <span
-                                        key={c._id}
-                                        onClick={() => setCatNameInput(c.name)}
-                                        className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black text-gray-500 hover:text-secondary hover:border-secondary cursor-pointer transition-all uppercase"
-                                    >
-                                        {c.name}
-                                    </span>
-                                ))}
+
+                            <div className="mt-10 pt-10 border-t border-white/5 space-y-3">
+                                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Categorías Existentes</p>
+                                <div className="grid grid-cols-1 gap-2">
+                                    {categories.map((c) => (
+                                        <div key={c._id} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl group hover:bg-white/[0.08] transition-all">
+                                            <div className="flex items-center gap-4">
+                                                <div className="p-2 bg-secondary/10 rounded-lg text-secondary">
+                                                    {React.createElement([Package, Star, Car, Coins, Scale, ShieldAlert, Layers, Zap, Briefcase, Trophy, Gamepad2, Users, Bell, Calendar, Hash].find(icon => icon.name === c.icon) || Package, { size: 16 })}
+                                                </div>
+                                                <span className="text-sm font-bold text-white uppercase">{c.name}</span>
+                                            </div>
+                                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={() => {
+                                                        setIsEditingCategory(c._id);
+                                                        setCatNameInput(c.name);
+                                                        setCatIconInput(c.icon || "Package");
+                                                    }}
+                                                    className="p-2 text-gray-500 hover:text-secondary"
+                                                >
+                                                    <Edit3 size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteCategory(c._id)}
+                                                    className="p-2 text-gray-500 hover:text-primary"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </section>
 

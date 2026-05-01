@@ -369,6 +369,16 @@ app.get('/api/admin/purchases', authMiddleware, adminMiddleware, async (req, res
     } catch (err) { res.status(500).json({ error: 'Server error' }); }
 });
 
+app.get('/api/purchases/recent', async (req, res) => {
+    try {
+        const purchases = await Purchase.find()
+            .sort({ date: -1 })
+            .limit(10)
+            .select('username productName date');
+        res.json(purchases);
+    } catch (err) { res.status(500).json({ error: 'Server error' }); }
+});
+
 // --- ANNOUNCEMENTS ---
 app.get('/api/announcements', async (req, res) => {
     try {
