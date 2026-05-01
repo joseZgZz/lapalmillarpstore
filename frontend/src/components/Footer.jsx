@@ -8,11 +8,11 @@ const Footer = () => {
       <Link to="/" className="flex items-center justify-center gap-3 mb-4">
         <Gamepad2 size={24} className="text-[#ff2e2e]" />
         <span className="text-xl font-bold text-white uppercase">
-          Nexus Store
+          La Palmilla Store
         </span>
       </Link>
       <p className="text-gray-500 text-xs">
-        © 2026 Nexus Store. Todos los derechos reservados.
+        © 2026 La Palmilla Store. Todos los derechos reservados.
       </p>
     </footer>
   );

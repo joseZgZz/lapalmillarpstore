@@ -256,7 +256,7 @@ const Admin = () => {
                                 SISTEMA_CORE_V3.1
                             </span>
                             <h1 className="text-5xl font-display font-black text-white uppercase mt-1">
-                                Nexus <span className="text-primary italic">Control</span>
+                                La Palmilla <span className="text-primary italic">Control</span>
                             </h1>
                         </div>
                     </div>

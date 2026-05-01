@@ -85,6 +85,59 @@ app.post('/api/auth/register', async (req, res) => {
     } catch (err) { res.status(500).json({ error: 'Error del servidor' }); }
 });
 
+// --- DISCORD OAUTH ---
+app.get('/api/auth/discord', (req, res) => {
+    const url = `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}&response_type=code&scope=identify%20email`;
+    res.redirect(url);
+});
+
+app.get('/auth/discord/callback', async (req, res) => {
+    const { code } = req.query;
+    if (!code) return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=no_code`);
+
+    try {
+        const tokenResponse = await axios.post('https://discord.com/api/oauth2/token', new URLSearchParams({
+            client_id: process.env.DISCORD_CLIENT_ID,
+            client_secret: process.env.DISCORD_CLIENT_SECRET,
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: process.env.REDIRECT_URI,
+        }).toString(), {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+
+        const userResponse = await axios.get('https://discord.com/api/users/@me', {
+            headers: { Authorization: `Bearer ${tokenResponse.data.access_token}` }
+        });
+
+        const { id, username, email, avatar } = userResponse.data;
+        let user = await User.findOne({ $or: [{ discordId: id }, { email }] });
+
+        if (!user) {
+            user = new User({
+                username,
+                email,
+                password: crypto.randomBytes(16).toString('hex'),
+                birthdate: new Date(),
+                discordId: id,
+                avatar: avatar ? `https://cdn.discordapp.com/avatars/${id}/${avatar}.png` : `https://ui-avatars.com/api/?name=${username}`,
+                discordUsername: username
+            });
+            await user.save();
+        } else if (!user.discordId) {
+            user.discordId = id;
+            user.discordUsername = username;
+            await user.save();
+        }
+
+        const token = jwt.sign({ id: user._id, role: user.role, platform: user.platform }, process.env.JWT_SECRET || 'secret123', { expiresIn: '7d' });
+        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?token=${token}`);
+    } catch (err) {
+        console.error(err);
+        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=auth_failed`);
+    }
+});
+
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -172,7 +225,7 @@ app.post('/api/products/buy/:id', authMiddleware, async (req, res) => {
         if (user.coins < product.price) return res.status(400).json({ error: 'Insufficient coins' });
         user.coins -= product.price;
         await user.save();
-        const ticketNumber = `NEXUS-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+        const ticketNumber = `PALMILLA-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
         const purchase = new Purchase({ userId: user._id, username: user.username, productId: product._id, productName: product.name, price: product.price, ticketNumber });
         await purchase.save();
         res.json({ message: 'Purchase successful', user, ticketNumber });

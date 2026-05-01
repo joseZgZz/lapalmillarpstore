@@ -11,7 +11,8 @@ const userSchema = new mongoose.Schema({
     platform: { type: String, enum: ['PC', 'Consola'], default: 'PC' },
     pcUsername: { type: String, default: '' },
     consoleUsername: { type: String, default: '' },
-    discordUsername: { type: String, default: '' }
+    discordUsername: { type: String, default: '' },
+    discordId: { type: String, default: '' }
 });
 
 module.exports = mongoose.model('User', userSchema);

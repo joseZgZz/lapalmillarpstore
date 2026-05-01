@@ -51,7 +51,7 @@ const Navbar = () => {
               <Zap className="text-white fill-white" size={20} />
             </div>
             <span className="text-2xl font-display font-black text-white tracking-tighter uppercase italic">
-              NEXUS <span className="text-primary not-italic">RP</span>
+              LA PALMILLA <span className="text-primary not-italic">RP</span>
             </span>
           </Link>
 

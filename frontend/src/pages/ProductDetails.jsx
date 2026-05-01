@@ -60,7 +60,7 @@ const ProductDetails = () => {
                     <p class="text-gray-400 text-sm">Estás a punto de canjear <span class="text-secondary font-bold">${product.price} Coins</span> por <span class="text-white font-bold">${product.name}</span>.</p>
                     <div class="p-4 bg-primary/10 border border-primary/20 rounded-2xl">
                         <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">AVISO IMPORTANTE</p>
-                        <p class="text-xs text-gray-400 leading-relaxed">Esta transacción se realiza con <b>Nexus Coins</b> (moneda virtual). Al confirmar, aceptas que esta operación es <b>FINAL Y NO REEMBOLSABLE</b> bajo ninguna circunstancia.</p>
+                        <p class="text-xs text-gray-400 leading-relaxed">Esta transacción se realiza con <b>La Palmilla Coins</b> (moneda virtual). Al confirmar, aceptas que esta operación es <b>FINAL Y NO REEMBOLSABLE</b> bajo ninguna circunstancia.</p>
                     </div>
                 </div>
             `,
@@ -267,7 +267,7 @@ const ProductDetails = () => {
                     {product.price}
                   </span>
                   <span className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-1.5">
-                    Monedas Nexus
+                    Monedas La Palmilla
                   </span>
                 </div>
               </div>

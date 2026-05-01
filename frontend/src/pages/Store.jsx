@@ -122,7 +122,7 @@ return (
             <div className="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-5xl font-display font-black text-white tracking-tighter uppercase mb-2">TIENDA
-                        <span className="text-primary italic">NEXUS</span>
+                        <span className="text-primary italic">LA PALMILLA</span>
                     </h1>
                     <div className="flex items-center gap-2 text-gray-500">
                         <span className="text-xs font-bold uppercase tracking-widest">{activeCategory ||

@@ -139,7 +139,7 @@ const Profile = () => {
               <p className="text-gray-500 font-medium tracking-wide">
                 ID de Cuenta:{" "}
                 <span className="text-gray-300">
-                  #NXS-{user._id.slice(-6).toUpperCase()}
+                  #PALM-{user._id.slice(-6).toUpperCase()}
                 </span>
               </p>
             </div>
