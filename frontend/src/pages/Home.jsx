@@ -35,7 +35,7 @@ const Home = () => {
             } catch (err) { }
         };
         fetchRecent();
-        const interval = setInterval(fetchRecent, 30000); // Update every 30s
+        const interval = setInterval(fetchRecent, 15000); // Update every 15s
         return () => clearInterval(interval);
     }, []);
 
@@ -94,23 +94,34 @@ const Home = () => {
             {/* RECENT PURCHASES TICKER */}
             <div className="fixed top-24 w-full z-40 h-10 bg-primary/10 backdrop-blur-md border-y border-white/5 flex items-center overflow-hidden">
                 <div className="whitespace-nowrap flex animate-marquee">
-                    {[...recentPurchases, ...recentPurchases].map((purchase, i) => (
-                        <div key={i} className="flex items-center gap-2 px-10 border-r border-white/5">
-                            <ShoppingCart size={14} className="text-primary" />
-                            <span className="text-[10px] font-black text-white uppercase italic">
-                                {purchase.username}
-                            </span>
-                            <span className="text-[10px] font-bold text-gray-500 lowercase">
-                                adquirió
-                            </span>
-                            <span className="text-[10px] font-black text-secondary uppercase">
-                                {purchase.productName}
-                            </span>
-                            <span className="text-[10px] font-bold text-gray-600 bg-white/5 px-2 py-0.5 rounded-full ml-1">
-                                hace {formatTimeAgo(purchase.date)}
-                            </span>
-                        </div>
-                    ))}
+                    {/* Repeat the list multiple times to ensure continuous flow and fill screen */}
+                    {recentPurchases.length > 0 ? (
+                        [...recentPurchases, ...recentPurchases, ...recentPurchases, ...recentPurchases, ...recentPurchases].map((purchase, i) => (
+                            <div key={i} className="flex items-center gap-2 px-10 border-r border-white/5">
+                                <ShoppingCart size={14} className="text-secondary animate-pulse" />
+                                <span className="text-[10px] font-black text-white uppercase italic">
+                                    {purchase.username}
+                                </span>
+                                <span className="text-[10px] font-bold text-gray-500 lowercase">
+                                    adquirió
+                                </span>
+                                <span className="text-[10px] font-black text-primary uppercase">
+                                    {purchase.productName}
+                                </span>
+                                <span className="text-[10px] font-bold text-gray-600 bg-white/5 px-2 py-0.5 rounded-full ml-1">
+                                    hace {formatTimeAgo(purchase.date)}
+                                </span>
+                            </div>
+                        ))
+                    ) : (
+                        /* Skeleton/Loading state if no purchases yet */
+                        Array(10).fill(0).map((_, i) => (
+                            <div key={i} className="flex items-center gap-2 px-10 border-r border-white/5 opacity-30">
+                                <ShoppingCart size={14} className="text-gray-600" />
+                                <span className="text-[10px] font-black text-gray-700 uppercase italic">SISTEMA_BUSCANDO_DATOS...</span>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 
