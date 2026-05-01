@@ -377,9 +377,17 @@ const Home = () => {
                                     key={i}
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
-                                    className="glass-card p-6 rounded-3xl border-secondary/20 bg-secondary/5 relative overflow-hidden"
+                                    className="glass-card p-6 rounded-3xl border-secondary/20 bg-secondary/5 relative overflow-hidden group"
                                 >
                                     <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/10 blur-3xl rounded-full"></div>
+
+                                    {item.job.image && (
+                                        <div className="h-32 mb-4 rounded-2xl overflow-hidden relative">
+                                            <img src={item.job.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                        </div>
+                                    )}
+
                                     <div className="relative z-10">
                                         <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2 block">{item.job.role}</span>
                                         <h3 className="text-xl font-black text-white mb-1 uppercase tracking-tighter">{item.job.name}</h3>

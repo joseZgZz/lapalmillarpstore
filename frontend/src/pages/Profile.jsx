@@ -186,33 +186,55 @@ const Profile = () => {
                   </div>
                 </div>
 
-                <button
-                  onClick={async () => {
-                    try {
-                      const token = localStorage.getItem("token");
-                      await axios.post(`${API_URL}/api/user/toggle-job`, {}, {
-                        headers: { Authorization: `Bearer ${token}` }
-                      });
-                      checkAuth();
-                      Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Estado actualizado',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        background: '#0a0a0a',
-                        color: '#fff'
-                      });
-                    } catch (e) { console.error(e); }
-                  }}
-                  className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${user.job.isOpen
-                    ? "bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20"
-                    : "bg-green-500/10 text-green-500 border border-green-500/20 hover:bg-green-500/20"
-                    }`}
-                >
-                  {user.job.isOpen ? 'CERRAR NEGOCIO' : 'ABRIR NEGOCIO'}
-                </button>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1">Foto del Negocio (URL)</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="https://..."
+                        className="flex-1 bg-black/40 border border-white/5 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-secondary transition-all"
+                        defaultValue={user.job.image}
+                        onBlur={async (e) => {
+                          try {
+                            const token = localStorage.getItem("token");
+                            await axios.post(`${API_URL}/api/user/update-job-image`, { image: e.target.value }, {
+                              headers: { Authorization: `Bearer ${token}` }
+                            });
+                          } catch (e) { }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={async () => {
+                      try {
+                        const token = localStorage.getItem("token");
+                        await axios.post(`${API_URL}/api/user/toggle-job`, {}, {
+                          headers: { Authorization: `Bearer ${token}` }
+                        });
+                        checkAuth();
+                        Swal.fire({
+                          toast: true,
+                          position: 'top-end',
+                          icon: 'success',
+                          title: 'Estado actualizado',
+                          showConfirmButton: false,
+                          timer: 2000,
+                          background: '#0a0a0a',
+                          color: '#fff'
+                        });
+                      } catch (e) { console.error(e); }
+                    }}
+                    className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${user.job.isOpen
+                      ? "bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20"
+                      : "bg-green-500/10 text-green-500 border border-green-500/20 hover:bg-green-500/20"
+                      }`}
+                  >
+                    {user.job.isOpen ? 'CERRAR NEGOCIO' : 'ABRIR NEGOCIO'}
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}

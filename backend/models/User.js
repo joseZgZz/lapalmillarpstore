@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
     job: {
         name: { type: String, default: '' },
         role: { type: String, default: '' },
+        image: { type: String, default: '' },
         isOpen: { type: Boolean, default: false }
     }
 });

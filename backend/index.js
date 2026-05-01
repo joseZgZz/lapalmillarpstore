@@ -322,6 +322,18 @@ app.post('/api/user/toggle-job', authMiddleware, async (req, res) => {
     } catch (err) { res.status(500).json({ error: 'Error del servidor' }); }
 });
 
+app.post('/api/user/update-job-image', authMiddleware, async (req, res) => {
+    try {
+        const { image } = req.body;
+        const user = await User.findById(req.user.id);
+        if (!user.job.name) return res.status(400).json({ error: 'No tienes un trabajo asignado' });
+
+        user.job.image = image;
+        await user.save();
+        res.json({ message: 'Imagen de negocio actualizada', user });
+    } catch (err) { res.status(500).json({ error: 'Error del servidor' }); }
+});
+
 app.get('/api/jobs/open', async (req, res) => {
     try {
         const usersWithJobs = await User.find({ "job.isOpen": true }).select('username job');
