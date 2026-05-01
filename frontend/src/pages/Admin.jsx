@@ -8,7 +8,7 @@ import {
     Database, Trash2, ShieldAlert, PlusCircle, LayoutGrid, Users,
     DollarSign, Image as ImageIcon, AlignLeft, Package, BarChart3,
     Settings, Bell, Calendar, X, Check, Save, Zap, Coins, ChevronRight,
-    History, Ticket, Edit3, Plus, Hash, Layers
+    History, Ticket, Edit3, Plus, Hash, Layers, ImagePlus
 } from 'lucide-react';
 import API_URL from '../config/api';
 
@@ -24,7 +24,10 @@ const Admin = () => {
     // Forms
     const [prodForm, setProdForm] = useState({ name: '', description: '', price: '', image: '', images: '', category: '' });
     const [isEditing, setIsEditing] = useState(null); // ID of product being edited
+
     const [catForm, setCatForm] = useState({ name: '', icon: 'Package', order: 0 });
+    const [isEditingCat, setIsEditingCat] = useState(null); // ID of category being edited
+
     const [announForm, setAnnounForm] = useState({ title: '', content: '', category: 'Update', color: 'bg-blue-500' });
     const [manualBalanceForm, setManualBalanceForm] = useState({ username: '', amount: '', action: 'add' });
     const [selectedUser, setSelectedUser] = useState(null);
@@ -71,15 +74,15 @@ const Admin = () => {
 
             if (isEditing) {
                 await axios.put(`${API_URL}/api/products/${isEditing}`, payload, { headers: { Authorization: `Bearer ${token}` } });
-                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Producto Actualizado', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Actualizado', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
             } else {
                 await axios.post(`${API_URL}/api/products`, payload, { headers: { Authorization: `Bearer ${token}` } });
-                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Producto Creado', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Creado', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
             }
             setProdForm({ name: '', description: '', price: '', image: '', images: '', category: categories[0]?.name || '' });
             setIsEditing(null);
             fetchData();
-        } catch (err) { Swal.fire('Error', 'Operación fallida', 'error'); }
+        } catch (err) { Swal.fire('Error', 'Fallo en la operación', 'error'); }
     };
 
     const handleEditProduct = (p) => {
@@ -110,15 +113,26 @@ const Admin = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            await axios.post(`${API_URL}/api/categories`, catForm, { headers: { Authorization: `Bearer ${token}` } });
+            if (isEditingCat) {
+                await axios.put(`${API_URL}/api/categories/${isEditingCat}`, catForm, { headers: { Authorization: `Bearer ${token}` } });
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Categoría Actualizada', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
+            } else {
+                await axios.post(`${API_URL}/api/categories`, catForm, { headers: { Authorization: `Bearer ${token}` } });
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Categoría Creada', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
+            }
             setCatForm({ name: '', icon: 'Package', order: 0 });
+            setIsEditingCat(null);
             fetchData();
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Categoría Creada', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
         } catch (err) { }
     };
 
+    const handleEditCategory = (c) => {
+        setIsEditingCat(c._id);
+        setCatForm({ name: c.name, icon: c.icon, order: c.order });
+    };
+
     const handleDeleteCategory = async (id) => {
-        const result = await Swal.fire({ title: '¿Borrar categoría?', text: 'Los productos en esta categoría no se borrarán pero perderán su filtro.', icon: 'warning', showCancelButton: true, background: '#0a0a0a', color: '#fff' });
+        const result = await Swal.fire({ title: '¿Borrar categoría?', text: 'Cuidado: esto afectará al filtro de los productos.', icon: 'warning', showCancelButton: true, background: '#0a0a0a', color: '#fff' });
         if (!result.isConfirmed) return;
         try {
             const token = localStorage.getItem('token');
@@ -127,7 +141,7 @@ const Admin = () => {
         } catch (err) { }
     };
 
-    // --- ANNOUNCEMENT ACTIONS ---
+    // --- OTHERS ---
     const handleCreateAnnouncement = async (e) => {
         e.preventDefault();
         try {
@@ -139,14 +153,6 @@ const Admin = () => {
         } catch (err) { }
     };
 
-    const handleDeleteAnnouncement = async (id) => {
-        try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`${API_URL}/api/announcements/${id}`, { headers: { Authorization: `Bearer ${token}` } });
-            fetchData();
-        } catch (err) { }
-    };
-
     const handleManualBalance = async (e) => {
         e.preventDefault();
         try {
@@ -155,17 +161,6 @@ const Admin = () => {
             setManualBalanceForm({ username: '', amount: '', action: 'add' });
             fetchData();
             Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Balance Actualizado', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
-        } catch (err) { Swal.fire('Error', err.response?.data?.error || 'Fallo', 'error'); }
-    };
-
-    const handleDeleteUser = async (id) => {
-        const result = await Swal.fire({ title: '¿ELIMINAR?', showCancelButton: true, background: '#0a0a0a', color: '#fff' });
-        if (!result.isConfirmed) return;
-        try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`${API_URL}/api/users/${id}`, { headers: { Authorization: `Bearer ${token}` } });
-            setSelectedUser(null);
-            fetchData();
         } catch (err) { }
     };
 
@@ -184,7 +179,7 @@ const Admin = () => {
                         </div>
                         <div>
                             <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">ADMINISTRATION_CORE</span>
-                            <h1 className="text-5xl font-display font-black text-white uppercase mt-1">Nexus <span className="text-primary italic">Control</span> <span className="text-[10px] text-primary align-top">v2</span></h1>
+                            <h1 className="text-5xl font-display font-black text-white uppercase mt-1">Nexus <span className="text-primary italic">Control</span> <span className="text-[10px] text-primary align-top">v2.1</span></h1>
                         </div>
                     </motion.div>
 
@@ -209,38 +204,36 @@ const Admin = () => {
                 </header>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-
                     <div className="lg:col-span-12">
                         <AnimatePresence mode="wait">
-                            <motion.div
-                                key={activeTab}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                className="grid grid-cols-1 lg:grid-cols-12 gap-10"
-                            >
-                                {/* LEFT COLUMN: FORM */}
+                            <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+                                {/* FORM SIDE */}
                                 <div className="lg:col-span-5">
                                     <section className="glass-card rounded-[3.5rem] p-10 border border-white/5">
                                         {activeTab === 'products' ? (
                                             <form onSubmit={handleSaveProduct} className="space-y-6">
                                                 <h2 className="text-xl font-black text-white flex items-center gap-4 uppercase tracking-tighter">
                                                     {isEditing ? <Edit3 className="text-secondary" /> : <PlusCircle className="text-primary" />}
-                                                    {isEditing ? 'Editar Producto' : 'Nuevo Producto'}
+                                                    {isEditing ? 'Editando Producto' : 'Nuevo Producto'}
                                                 </h2>
                                                 <div className="space-y-4">
-                                                    <input type="text" placeholder="Nombre" className="admin-input" value={prodForm.name} onChange={e => setProdForm({ ...prodForm, name: e.target.value })} required />
-                                                    <input type="number" placeholder="Precio" className="admin-input" value={prodForm.price} onChange={e => setProdForm({ ...prodForm, price: e.target.value })} required />
-                                                    <select className="admin-input" value={prodForm.category} onChange={e => setProdForm({ ...prodForm, category: e.target.value })} required>
-                                                        {categories.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
-                                                    </select>
-                                                    <input type="text" placeholder="Imagen Portada (URL)" className="admin-input" value={prodForm.image} onChange={e => setProdForm({ ...prodForm, image: e.target.value })} required />
-                                                    <textarea placeholder="Galería de Imágenes (URLs separadas por comas)" className="admin-input min-h-[80px] text-[10px]" value={prodForm.images} onChange={e => setProdForm({ ...prodForm, images: e.target.value })} />
-                                                    <textarea placeholder="Descripción..." className="admin-input min-h-[150px] resize-none" value={prodForm.description} onChange={e => setProdForm({ ...prodForm, description: e.target.value })} required />
+                                                    <div className="group"><p className="text-[9px] text-gray-500 font-bold uppercase mb-2 ml-4 tracking-widest">Información Básica</p>
+                                                        <input type="text" placeholder="Nombre" className="admin-input" value={prodForm.name} onChange={e => setProdForm({ ...prodForm, name: e.target.value })} required />
+                                                        <input type="number" placeholder="Precio CC" className="admin-input mt-2" value={prodForm.price} onChange={e => setProdForm({ ...prodForm, price: e.target.value })} required />
+                                                        <select className="admin-input mt-2" value={prodForm.category} onChange={e => setProdForm({ ...prodForm, category: e.target.value })} required>
+                                                            {categories.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
+                                                        </select>
+                                                    </div>
+                                                    <div className="group"><p className="text-[9px] text-gray-500 font-bold uppercase mb-2 ml-4 tracking-widest">Multimedia</p>
+                                                        <input type="text" placeholder="Imagen Principal (URL)" className="admin-input" value={prodForm.image} onChange={e => setProdForm({ ...prodForm, image: e.target.value })} required />
+                                                        <textarea placeholder="Galería (URLs extra, separadas por COMAS)" className="admin-input mt-2 min-h-[80px] text-[10px]" value={prodForm.images} onChange={e => setProdForm({ ...prodForm, images: e.target.value })} />
+                                                    </div>
+                                                    <textarea placeholder="Descripción detallada..." className="admin-input min-h-[120px]" value={prodForm.description} onChange={e => setProdForm({ ...prodForm, description: e.target.value })} required />
                                                 </div>
                                                 <div className="flex gap-4">
                                                     <button type="submit" className={`flex-1 py-5 rounded-3xl font-black text-xs tracking-widest ${isEditing ? 'bg-secondary text-black' : 'btn-card-primary'}`}>
-                                                        {isEditing ? 'GUARDAR CAMBIOS' : 'CREAR PRODUCTO'}
+                                                        {isEditing ? 'ACTUALIZAR ARTÍCULO' : 'PUBLICAR ARTÍCULO'}
                                                     </button>
                                                     {isEditing && (
                                                         <button type="button" onClick={() => { setIsEditing(null); setProdForm({ name: '', description: '', price: '', image: '', images: '', category: categories[0]?.name || '' }); }} className="px-6 bg-white/5 text-white rounded-3xl font-black text-[10px]">CANCELAR</button>
@@ -249,63 +242,36 @@ const Admin = () => {
                                             </form>
                                         ) : activeTab === 'categories' ? (
                                             <form onSubmit={handleSaveCategory} className="space-y-6">
-                                                <h2 className="text-xl font-black text-white flex items-center gap-4 uppercase tracking-tighter"><Layers className="text-primary" /> Nueva Categoría</h2>
+                                                <h2 className="text-xl font-black text-white flex items-center gap-4 uppercase tracking-tighter">
+                                                    {isEditingCat ? <Edit3 className="text-secondary" /> : <Layers className="text-primary" />}
+                                                    {isEditingCat ? 'Editando Categoría' : 'Nueva Categoría'}
+                                                </h2>
                                                 <div className="space-y-4">
-                                                    <input type="text" placeholder="Nombre de Categoría" className="admin-input" value={catForm.name} onChange={e => setCatForm({ ...catForm, name: e.target.value })} required />
-                                                    <input type="text" placeholder="Icono (Lucide name: Car, Star, etc)" className="admin-input" value={catForm.icon} onChange={e => setCatForm({ ...catForm, icon: e.target.value })} />
-                                                    <input type="number" placeholder="Orden" className="admin-input" value={catForm.order} onChange={e => setCatForm({ ...catForm, order: e.target.value })} />
+                                                    <input type="text" placeholder="Nombre" className="admin-input" value={catForm.name} onChange={e => setCatForm({ ...catForm, name: e.target.value })} required />
+                                                    <input type="text" placeholder="Icono (Ej: Star, Car, Coins)" className="admin-input" value={catForm.icon} onChange={e => setCatForm({ ...catForm, icon: e.target.value })} />
+                                                    <input type="number" placeholder="Prioridad" className="admin-input" value={catForm.order} onChange={e => setCatForm({ ...catForm, order: e.target.value })} />
                                                 </div>
-                                                <button type="submit" className="w-full btn-card-primary py-5 rounded-3xl font-black text-xs tracking-widest">AÑADIR CATEGORÍA</button>
-                                            </form>
-                                        ) : activeTab === 'announcements' ? (
-                                            <form onSubmit={handleCreateAnnouncement} className="space-y-6">
-                                                <h2 className="text-xl font-black text-white flex items-center gap-4 uppercase tracking-tighter"><Bell className="text-primary" /> Crear Novedad</h2>
-                                                <div className="space-y-4">
-                                                    <input type="text" placeholder="Título" className="admin-input" value={announForm.title} onChange={e => setAnnounForm({ ...announForm, title: e.target.value })} required />
-                                                    <select className="admin-input" value={announForm.category} onChange={e => setAnnounForm({ ...announForm, category: e.target.value })}>
-                                                        <option value="Update">Update</option>
-                                                        <option value="Alert">Alert</option>
-                                                        <option value="Event">Event</option>
-                                                    </select>
-                                                    <textarea placeholder="Contenido..." className="admin-input min-h-[150px]" value={announForm.content} onChange={e => setAnnounForm({ ...announForm, content: e.target.value })} required />
+                                                <div className="flex gap-4">
+                                                    <button type="submit" className={`flex-1 py-5 rounded-3xl font-black text-xs tracking-widest ${isEditingCat ? 'bg-secondary text-black' : 'btn-card-primary'}`}>
+                                                        {isEditingCat ? 'GUARDAR NOMBRE/ICONO' : 'CREAR CATEGORÍA'}
+                                                    </button>
+                                                    {isEditingCat && (
+                                                        <button type="button" onClick={() => { setIsEditingCat(null); setCatForm({ name: '', icon: 'Package', order: 0 }); }} className="px-6 bg-white/5 text-white rounded-3xl font-black text-[10px]">CANCELAR</button>
+                                                    )}
                                                 </div>
-                                                <button type="submit" className="w-full py-5 rounded-3xl font-black text-xs tracking-widest bg-blue-500 text-white">POSTEAR</button>
                                             </form>
-                                        ) : activeTab === 'users' ? (
-                                            <div className="space-y-6">
-                                                <h2 className="text-xl font-black text-white flex items-center gap-4 uppercase tracking-tighter"><DollarSign className="text-secondary" /> Gestión de Balance</h2>
-                                                <form onSubmit={handleManualBalance} className="space-y-4">
-                                                    <input type="text" placeholder="Nombre de Usuario" className="admin-input" value={manualBalanceForm.username} onChange={e => setManualBalanceForm({ ...manualBalanceForm, username: e.target.value })} required />
-                                                    <input type="number" placeholder="Cantidad" className="admin-input" value={manualBalanceForm.amount} onChange={e => setManualBalanceForm({ ...manualBalanceForm, amount: e.target.value })} required />
-                                                    <div className="flex gap-2">
-                                                        <button type="button" onClick={() => setManualBalanceForm({ ...manualBalanceForm, action: 'add' })} className={`flex-1 py-3 rounded-2xl font-black text-[10px] ${manualBalanceForm.action === 'add' ? 'bg-secondary text-black' : 'bg-white/5 opacity-50'}`}>AÑADIR</button>
-                                                        <button type="button" onClick={() => setManualBalanceForm({ ...manualBalanceForm, action: 'remove' })} className={`flex-1 py-3 rounded-2xl font-black text-[10px] ${manualBalanceForm.action === 'remove' ? 'bg-primary text-white' : 'bg-white/5 opacity-50'}`}>QUITAR</button>
-                                                    </div>
-                                                    <button type="submit" className="w-full btn-card-primary py-5 rounded-3xl font-black text-xs tracking-widest">APLICAR</button>
-                                                </form>
-                                                {selectedUser && (
-                                                    <div className="pt-8 mt-8 border-t border-white/5 text-center">
-                                                        <img src={selectedUser.avatar} className="w-12 h-12 rounded-xl mx-auto mb-3" alt="" />
-                                                        <p className="text-xs font-black text-white uppercase mb-4">{selectedUser.username}</p>
-                                                        <button onClick={() => handleDeleteUser(selectedUser._id)} className="w-full py-3 bg-primary/10 text-primary rounded-xl text-[10px] font-black hover:bg-primary hover:text-white transition-all">ELIMINAR CUENTA</button>
-                                                    </div>
-                                                )}
-                                            </div>
                                         ) : (
-                                            <div className="text-center py-20 opacity-30">
-                                                <History size={60} className="mx-auto mb-4" />
-                                                <p className="font-black uppercase tracking-widest text-[10px]">Auditoría de Sistemas</p>
-                                            </div>
+                                            <div className="py-20 text-center opacity-20"><Settings size={80} className="mx-auto mb-4" /><p className="font-black uppercase tracking-widest text-[10px]">Panel de Control Central</p></div>
                                         )}
                                     </section>
                                 </div>
 
-                                {/* RIGHT COLUMN: LIST/DATA */}
+                                {/* LIST SIDE */}
                                 <div className="lg:col-span-7">
                                     <section className="glass-card rounded-[3.5rem] p-10 border border-white/5 min-h-[600px]">
                                         {activeTab === 'products' ? (
                                             <div className="space-y-4">
-                                                <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Gestión de Catálogo</h3>
+                                                <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Inventario Global</h3>
                                                 {products.map(p => (
                                                     <div key={p._id} className="flex items-center justify-between p-5 bg-white/[0.02] border border-white/5 rounded-[2rem] group hover:bg-white/[0.04]">
                                                         <div className="flex items-center gap-4">
@@ -316,25 +282,28 @@ const Admin = () => {
                                                             </div>
                                                         </div>
                                                         <div className="flex gap-2">
-                                                            <button onClick={() => handleEditProduct(p)} className="p-3 text-gray-500 hover:text-secondary"><Edit3 size={18} /></button>
-                                                            <button onClick={() => handleDeleteProduct(p._id)} className="p-3 text-gray-500 hover:text-primary"><Trash2 size={18} /></button>
+                                                            <button onClick={() => handleEditProduct(p)} className="p-3 text-gray-500 hover:text-secondary bg-white/5 rounded-xl"><Edit3 size={18} /></button>
+                                                            <button onClick={() => handleDeleteProduct(p._id)} className="p-3 text-gray-500 hover:text-primary bg-white/5 rounded-xl"><Trash2 size={18} /></button>
                                                         </div>
                                                     </div>
                                                 ))}
                                             </div>
                                         ) : activeTab === 'categories' ? (
                                             <div className="space-y-4">
-                                                <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Arquitectura de la Tienda</h3>
+                                                <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Arquitectura de Categorías</h3>
                                                 {categories.map(c => (
                                                     <div key={c._id} className="flex items-center justify-between p-5 bg-white/[0.02] border border-white/5 rounded-[2rem]">
                                                         <div className="flex items-center gap-4">
                                                             <div className="p-3 bg-primary/10 text-primary rounded-xl"><Layers size={20} /></div>
                                                             <div>
-                                                                <h4 className="font-bold text-white text-sm uppercase tracking-tighter">{c.name}</h4>
-                                                                <p className="text-[10px] text-gray-600">Prioridad: {c.order} • Icono: {c.icon}</p>
+                                                                <h4 className="font-bold text-white text-sm uppercase">{c.name}</h4>
+                                                                <p className="text-[10px] text-gray-600 uppercase font-bold tracking-widest">{c.icon} • Orden: {c.order}</p>
                                                             </div>
                                                         </div>
-                                                        <button onClick={() => handleDeleteCategory(c._id)} className="p-3 text-gray-700 hover:text-primary"><Trash2 size={18} /></button>
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => handleEditCategory(c)} className="p-3 text-gray-500 hover:text-secondary bg-white/5 rounded-xl"><Edit3 size={18} /></button>
+                                                            <button onClick={() => handleDeleteCategory(c._id)} className="p-3 text-gray-700 hover:text-primary bg-white/5 rounded-xl"><Trash2 size={18} /></button>
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>
@@ -343,39 +312,17 @@ const Admin = () => {
                                                 <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Usuarios Dashboard</h3>
                                                 {users.map(u => (
                                                     <div key={u._id} onClick={() => setSelectedUser(u)} className={`flex items-center justify-between p-4 border rounded-2xl cursor-pointer transition-all ${selectedUser?._id === u._id ? 'bg-secondary/10 border-secondary/50' : 'bg-white/[0.01] border-white/5'}`}>
-                                                        <div className="flex items-center gap-4">
-                                                            <img src={u.avatar} className="w-8 h-8 rounded-lg" alt="" />
-                                                            <div>
-                                                                <h4 className="font-bold text-white text-xs">{u.username}</h4>
-                                                                <p className="text-[9px] text-gray-600 uppercase font-black">{u.coins} CC</p>
-                                                            </div>
-                                                        </div>
-                                                        <ChevronRight size={14} className="text-gray-800" />
+                                                        <div className="flex items-center gap-4"><img src={u.avatar} className="w-8 h-8 rounded-lg" alt="" /><div><h4 className="font-bold text-white text-xs">{u.username}</h4><p className="text-[9px] text-gray-600 uppercase font-black">{u.coins} CC</p></div></div><ChevronRight size={14} className="text-gray-800" />
                                                     </div>
                                                 ))}
                                             </div>
                                         ) : activeTab === 'purchases' ? (
                                             <div className="space-y-5">
-                                                <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Registro de Ventas</h3>
+                                                <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Auditoría Transaccional</h3>
                                                 {purchases.map(pur => (
                                                     <div key={pur._id} className="p-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem]">
-                                                        <div className="flex justify-between items-center mb-4">
-                                                            <div className="flex items-center gap-3">
-                                                                <Ticket className="text-secondary" size={16} />
-                                                                <span className="text-xs font-black text-white">{pur.ticketNumber}</span>
-                                                            </div>
-                                                            <span className="text-[10px] font-bold text-gray-700">{new Date(pur.date).toLocaleDateString()}</span>
-                                                        </div>
-                                                        <div className="flex justify-between">
-                                                            <div>
-                                                                <p className="text-[9px] font-black text-gray-500 uppercase">Cliente</p>
-                                                                <p className="text-sm font-bold text-white">{pur.username}</p>
-                                                            </div>
-                                                            <div className="text-right">
-                                                                <p className="text-[9px] font-black text-gray-500 uppercase">Producto</p>
-                                                                <p className="text-sm font-bold text-primary italic">{pur.productName}</p>
-                                                            </div>
-                                                        </div>
+                                                        <div className="flex justify-between items-center mb-4"><div className="flex items-center gap-3"><Ticket className="text-secondary" size={16} /><span className="text-xs font-black text-white">{pur.ticketNumber}</span></div><span className="text-[10px] font-bold text-gray-700">{new Date(pur.date).toLocaleDateString()}</span></div>
+                                                        <div className="flex justify-between"><div><p className="text-[9px] font-black text-gray-500 uppercase">Cliente</p><p className="text-sm font-bold text-white">{pur.username}</p></div><div className="text-right"><p className="text-[9px] font-black text-gray-500 uppercase">Producto</p><p className="text-sm font-bold text-primary italic">{pur.productName}</p></div></div>
                                                     </div>
                                                 ))}
                                             </div>
@@ -385,7 +332,6 @@ const Admin = () => {
                             </motion.div>
                         </AnimatePresence>
                     </div>
-
                 </div>
             </div>
         </div>
