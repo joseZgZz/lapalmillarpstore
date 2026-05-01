@@ -187,6 +187,13 @@ app.get('/api/user/me', authMiddleware, async (req, res) => {
     } catch (err) { res.status(500).json({ error: 'Server error' }); }
 });
 
+app.get('/api/users/profile/logs', authMiddleware, async (req, res) => {
+    try {
+        const purchases = await Purchase.find({ userId: req.user.id }).sort({ date: -1 });
+        res.json(purchases);
+    } catch (err) { res.status(500).json({ error: 'Server error' }); }
+});
+
 app.get('/api/users', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const users = await User.find().select('-password');

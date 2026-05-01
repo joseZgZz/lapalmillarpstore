@@ -29,7 +29,7 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setLogs(res.data);
-      } catch (err) {}
+      } catch (err) { }
     };
     if (user) fetchLogs();
   }, [user]);
@@ -193,11 +193,11 @@ const Profile = () => {
                     <thead>
                       <tr className="text-[10px] font-black text-gray-600 uppercase tracking-widest border-b border-white/5">
                         <th className="pb-4 px-4 font-black">
-                          Operación / Activo
+                          Artículo Adquirido
                         </th>
-                        <th className="pb-4 px-4 font-black">Hash ID</th>
+                        <th className="pb-4 px-4 font-black">N° de Ticket</th>
                         <th className="pb-4 px-4 font-black text-right">
-                          Inversión
+                          Costo
                         </th>
                         <th className="pb-4 px-4 font-black text-right">
                           Fecha
@@ -219,13 +219,13 @@ const Profile = () => {
                                 <Package size={18} />
                               </div>
                               <span className="text-sm font-bold text-white uppercase tracking-tight">
-                                {log.action || "Adquisición de Activo"}
+                                {log.productName || "Artículo Desconocido"}
                               </span>
                             </div>
                           </td>
                           <td className="py-6 px-4">
-                            <code className="text-[10px] text-gray-500 break-all font-mono">
-                              #HASH-{log._id.slice(-10).toUpperCase()}
+                            <code className="text-[10px] font-bold text-gray-500 break-all bg-white/5 px-2 py-1 rounded-md">
+                              {log.ticketNumber || `#HASH-${log._id.slice(-10).toUpperCase()}`}
                             </code>
                           </td>
                           <td className="py-6 px-4 text-right">
@@ -235,7 +235,7 @@ const Profile = () => {
                           </td>
                           <td className="py-6 px-4 text-right">
                             <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                              {new Date(log.createdAt).toLocaleDateString()}
+                              {new Date(log.date || log.createdAt).toLocaleDateString()}
                             </span>
                           </td>
                         </motion.tr>
