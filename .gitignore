@@ -6,8 +6,8 @@
 node_modules/
 */node_modules/
 
-# Variables de entorno (NUNCA subir al repositorio)
-.env
+# Variables de entorno (Subiendo al repo por petición del usuario - ¡CUIDADO!)
+# .env
 .env.local
 .env.production
 .env.*.local
