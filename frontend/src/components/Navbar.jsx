@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, LogOut, Menu, X, LogIn, Gamepad2, Coins, Shield } from 'lucide-react';
-import API_URL from '../config/api';
+import { ShoppingCart, User, Menu, X, LogIn, LogOut, Shield, Zap, ChevronRight } from 'lucide-react';
 
 const Navbar = () => {
-const { user, login, logout } = useAuth();
+const { user, loginWithDiscord, logout } = useAuth();
 const location = useLocation();
 const [isScrolled, setIsScrolled] = useState(false);
 const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -17,99 +16,75 @@ window.addEventListener('scroll', handleScroll);
 return () => window.removeEventListener('scroll', handleScroll);
 }, []);
 
-const loginWithDiscord = () => {
-window.location.href = `${API_URL}/api/auth/discord`;
-};
-
 const navLinks = [
 { name: 'Inicio', path: '/' },
 { name: 'Tienda', path: '/store' },
-{ name: 'Anuncios', path: '/announcements' },
+{ name: 'Novedades', path: '/announcements' },
 ];
 
 return (
-<motion.nav initial={{ y: -100 }} animate={{ y: 0 }} className={`fixed top-0 left-0 right-0 z-50 transition-all
-    duration-300 ${ isScrolled ? 'py-3 bg-[#0a0a0acc]/90 backdrop-blur-xl border-b border-white/10'
-    : 'py-6 bg-transparent' }`}>
+<nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'py-4' : 'py-8' }`}>
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className={`relative glass-card rounded-[2.5rem] border border-white/10 px-6 py-3 flex items-center
+            justify-between transition-all duration-500 ${isScrolled
+            ? 'shadow-2xl shadow-black/50 bg-[#0a0a0a]/90 backdrop-blur-xl' : 'bg-[#0a0a0a]/40' }`}>
 
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
             <div
-                className="p-2 bg-[#ff2e2e] rounded-xl shadow-[0_0_20px_rgba(255,46,46,0.5)] group-hover:rotate-12 transition-transform">
-                <Gamepad2 size={24} className="text-white" />
+                className="w-10 h-10 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:rotate-12 transition-transform">
+                <Zap className="text-white fill-white" size={20} />
             </div>
-            <span className="text-2xl font-display font-black tracking-tighter text-white">
-                LA<span className="text-[#ff2e2e] tracking-normal">PALMILLA</span>
-            </span>
+            <span className="text-2xl font-display font-black text-white tracking-tighter uppercase italic">NEXUS <span
+                    className="text-primary not-italic">RP</span></span>
             </Link>
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-2">
                 {navLinks.map((link) => (
-                <Link key={link.name} to={link.path} className={`px-5 py-2 rounded-xl text-sm font-bold transition-all
-                    ${ location.pathname===link.path ? 'text-white bg-[#ff2e2e] shadow-lg shadow-[#ff2e2e]/20'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5' }`}>
+                <Link key={link.name} to={link.path} className={`px-6 py-2.5 rounded-2xl text-xs font-black uppercase
+                    tracking-widest transition-all ${location.pathname===link.path
+                    ? 'bg-white/10 text-white shadow-inner' : 'text-gray-400 hover:text-white hover:bg-white/5' }`}>
                 {link.name}
                 </Link>
                 ))}
+                {user?.role === 'admin' && (
+                <Link to="/admin" className={`px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest
+                    transition-all flex items-center gap-2 ${location.pathname==='/admin' ? 'bg-primary text-white'
+                    : 'text-primary hover:bg-primary/10' }`}>
+                <Shield size={14} /> PANEL
+                </Link>
+                )}
             </div>
 
-            {/* Actions */}
+            {/* User Area */}
             <div className="hidden md:flex items-center gap-4">
                 {user ? (
-                <div className="flex items-center gap-4">
-                    <div className="flex flex-col items-end mr-2">
-                        <span
-                            className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-none mb-1">Balance</span>
-                        <div className="flex items-center gap-2 text-[#ffd000] font-black">
-                            <Coins size={14} />
-                            <span>{user.coins} CC</span>
-                        </div>
+                <div className="flex items-center gap-4 pl-4 border-l border-white/10">
+                    <Link to="/profile" className="flex items-center gap-3 group">
+                    <div className="text-right">
+                        <p className="text-[10px] font-black text-gray-500 uppercase leading-none mb-1">Bienvenido,</p>
+                        <p className="text-xs font-bold text-white group-hover:text-primary transition-colors">
+                            {user.username}</p>
                     </div>
-                    {user.role === 'admin' && (
-                    <Link to="/admin"
-                        className="p-3 text-[#ff2e2e] bg-[#ff2e2e]/10 rounded-xl hover:bg-[#ff2e2e]/20 transition-all"
-                        title="Panel Admin">
-                    <Shield size={20} />
-                    </Link>
-                    )}
-                    <Link to="/profile"
-                        className="flex items-center gap-3 p-1 pl-4 bg-white/5 rounded-2xl border border-white/5 hover:border-[#ff2e2e]/50 transition-all group">
-                    <span
-                        className="text-sm font-bold text-white group-hover:text-[#ff2e2e] transition-colors">{user.username}</span>
-                    <img src={user.avatar} className="w-10 h-10 rounded-xl" alt="" />
+                    <img src={user.avatar}
+                        className="w-10 h-10 rounded-2xl border-2 border-white/5 group-hover:border-primary/50 transition-all shadow-xl"
+                        alt="" />
                     </Link>
                     <button onClick={logout}
-                        className="p-3 text-gray-500 hover:text-[#ff2e2e] hover:bg-[#ff2e2e]/10 rounded-xl transition-all">
-                        <LogOut size={20} />
+                        className="p-2.5 bg-white/5 hover:bg-primary/10 text-gray-400 hover:text-primary rounded-2xl transition-all">
+                        <LogOut size={18} />
                     </button>
                 </div>
                 ) : (
-                <div className="flex items-center gap-2">
-                    <Link to="/login"
-                        className="px-5 py-2 text-sm font-bold text-gray-400 hover:text-white transition-colors">
-                    Ingresar
-                    </Link>
-                    <Link to="/register"
-                        className="bg-[#ff2e2e] hover:bg-[#e62a2a] text-white px-6 py-2.5 rounded-xl text-sm font-black transition-all hover:scale-105 shadow-lg shadow-primary/20">
-                    REGISTRO
-                    </Link>
-                    <div className="w-px h-6 bg-white/10 mx-2"></div>
-                    <button onClick={loginWithDiscord}
-                        className="p-2.5 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-xl transition-all hover:scale-110 active:scale-95 shadow-lg">
-                        <LogIn size={20} />
-                    </button>
-                </div>
-                )}
-                <button className="p-3 text-gray-400 hover:text-white transition-colors relative">
-                    <ShoppingCart size={22} />
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-[#ff2e2e] rounded-full"></span>
+                <button onClick={loginWithDiscord}
+                    className="flex items-center gap-3 px-8 py-3.5 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20">
+                    <LogIn size={18} /> CONECTAR DISCORD
                 </button>
+                )}
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Controls */}
             <div className="md:hidden flex items-center gap-4">
                 <button onClick={()=> setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-gray-400">
                     {isMobileMenuOpen ?
@@ -121,54 +96,45 @@ return (
         </div>
     </div>
 
-    {/* Mobile Menu Overlay */}
+    {/* Mobile Menu */}
     <AnimatePresence>
         {isMobileMenuOpen && (
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0,
             height: 0 }} className="md:hidden bg-[#0a0a0a] border-b border-white/10 overflow-hidden">
             <div className="p-6 space-y-4">
                 {navLinks.map((link) => (
-                <Link key={link.name} to={link.path} onClick={()=> setIsMobileMenuOpen(false)}
-                className="block p-4 rounded-2xl text-xl font-bold text-white hover:bg-[#ff2e2e]/20 transition-all"
-                >
+                <Link key={link.name} to={link.path} onClick={()=> setIsMobileMenuOpen(false)} className="block p-4
+                rounded-2xl text-xl font-bold text-white hover:bg-white/5 transition-all">
                 {link.name}
                 </Link>
                 ))}
+                {user?.role === 'admin' && (
+                <Link to="/admin" onClick={()=> setIsMobileMenuOpen(false)} className="block p-4 rounded-2xl text-xl
+                font-bold text-primary hover:bg-primary/5 transition-all flex items-center gap-3">
+                <Shield size={20} /> PANEL ADMIN
+                </Link>
+                )}
                 <div className="pt-4 mt-4 border-t border-white/10">
                     {user ? (
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl">
-                            <img src={user.avatar} className="w-12 h-12 rounded-xl" alt="" />
-                            <div>
-                                <p className="font-bold text-white">{user.username}</p>
-                                <p className="text-[#ffd000] font-black">{user.coins} CC</p>
-                            </div>
-                        </div>
-                        {user.role === 'admin' && (
-                        <Link to="/admin" onClick={()=> setIsMobileMenuOpen(false)} className="w-full p-4 bg-primary/10
-                        text-primary rounded-2xl font-bold text-center">Panel Admin</Link>
-                        )}
-                        <button onClick={logout}
-                            className="w-full p-4 bg-white/5 text-gray-400 rounded-2xl font-bold">Logout</button>
+                    <Link to="/profile" onClick={()=> setIsMobileMenuOpen(false)} className="flex items-center gap-4 p-4
+                    bg-white/5 rounded-2xl">
+                    <img src={user.avatar} className="w-12 h-12 rounded-xl" alt="" />
+                    <div>
+                        <p className="text-sm font-bold text-white">{user.username}</p>
+                        <p className="text-xs text-gray-500">{user.coins} Coins</p>
                     </div>
+                    </Link>
                     ) : (
-                    <div className="flex flex-col gap-3">
-                        <Link to="/login" onClick={()=> setIsMobileMenuOpen(false)} className="w-full p-5 bg-white/5
-                        text-white rounded-2xl font-bold text-center">Ingresar</Link>
-                        <Link to="/register" onClick={()=> setIsMobileMenuOpen(false)} className="w-full p-5 bg-primary
-                        text-white rounded-2xl font-black text-center shadow-lg">CREAR CUENTA</Link>
-                        <button onClick={loginWithDiscord}
-                            className="w-full flex items-center justify-center gap-3 bg-[#5865F2] text-white p-5 rounded-2xl font-bold text-lg">
-                            <Gamepad2 size={20} /> Discord Login
-                        </button>
-                    </div>
+                    <button onClick={loginWithDiscord}
+                        className="w-full py-5 bg-primary text-white rounded-3xl font-black text-sm uppercase tracking-widest">CONECTAR
+                        DISCORD</button>
                     )}
                 </div>
             </div>
         </motion.div>
         )}
     </AnimatePresence>
-</motion.nav>
+</nav>
 );
 };
 

@@ -36,7 +36,7 @@ axios.get(`${API_URL}/api/categories`)
 setProducts(prodRes.data);
 setCategories(catRes.data);
 if (catRes.data.length > 0) setActiveCategory(catRes.data[0].name);
-} catch (err) { }
+} catch (err) { console.error("Error fetching store data", err); }
 };
 fetchData();
 }, []);
@@ -50,13 +50,10 @@ return matchesSearch && matchesCategory;
 
 return (
 <div className="min-h-screen bg-[#0a0a0a] pt-32 pb-20 relative overflow-hidden bg-grid">
-
-    {/* Background Ambience */}
     <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-primary/5 blur-[150px] rounded-full pointer-events-none">
     </div>
 
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col lg:flex-row gap-8">
-
         {/* SIDEBAR */}
         <aside className="w-full lg:w-72 shrink-0">
             <div className="sticky top-32 space-y-6">
@@ -67,9 +64,8 @@ return (
                             <Coins size={20} />
                         </div>
                         <div>
-                            <p
-                                className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">
-                                Tu Balance</p>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Tu
+                                Balance</p>
                             <span className="text-xl font-black text-white">{user.coins} <span
                                     className="text-sm font-bold text-gray-500">CC</span></span>
                         </div>
@@ -114,19 +110,19 @@ return (
             </div>
         </aside>
 
-        {/* PRODUCT PANELS */}
+        {/* MAIN CONTENT */}
         <main className="flex-1">
             <div className="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-5xl font-display font-black text-white tracking-tighter uppercase mb-2">TIENDA
                         <span className="text-primary italic">NEXUS</span></h1>
                     <div className="flex items-center gap-2 text-gray-500">
-                        <span className="text-xs font-bold uppercase tracking-widest">{activeCategory}</span>
+                        <span className="text-xs font-bold uppercase tracking-widest">{activeCategory ||
+                            'Cargando...'}</span>
                         <ChevronRight size={12} />
                         <span className="text-xs font-bold uppercase tracking-widest text-primary">Catálogo</span>
                     </div>
                 </div>
-
                 <div className="relative group">
                     <Search size={18}
                         className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-primary transition-colors" />
@@ -152,7 +148,7 @@ return (
                         <div className="h-60 relative overflow-hidden bg-black/40">
                             <img src={p.image}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                alt="" />
+                                alt={p.name} />
                             <div className="absolute top-6 left-6 z-20">
                                 <div
                                     className="bg-primary text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-xl">
