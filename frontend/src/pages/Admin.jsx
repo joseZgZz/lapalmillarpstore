@@ -23,12 +23,9 @@ const Admin = () => {
 
     // Forms
     const [prodForm, setProdForm] = useState({ name: '', description: '', price: '', image: '', images: '', category: '' });
-    const [isEditing, setIsEditing] = useState(null); // ID of product being edited
+    const [isEditing, setIsEditing] = useState(null);
 
-    const [catForm, setCatForm] = useState({ name: '', icon: 'Package', order: 0 });
-    const [isEditingCat, setIsEditingCat] = useState(null); // ID of category being edited
-
-    const [announForm, setAnnounForm] = useState({ title: '', content: '', category: 'Update', color: 'bg-blue-500' });
+    const [catNameInput, setCatNameInput] = useState(''); // Simple input for the new request
     const [manualBalanceForm, setManualBalanceForm] = useState({ username: '', amount: '', action: 'add' });
     const [selectedUser, setSelectedUser] = useState(null);
 
@@ -87,14 +84,7 @@ const Admin = () => {
 
     const handleEditProduct = (p) => {
         setIsEditing(p._id);
-        setProdForm({
-            name: p.name,
-            description: p.description,
-            price: p.price,
-            image: p.image,
-            images: p.images?.join(', ') || '',
-            category: p.category
-        });
+        setProdForm({ name: p.name, description: p.description, price: p.price, image: p.image, images: p.images?.join(', ') || '', category: p.category });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -108,51 +98,36 @@ const Admin = () => {
         } catch (err) { }
     };
 
-    // --- CATEGORY ACTIONS ---
-    const handleSaveCategory = async (e) => {
-        e.preventDefault();
+    // --- SIMPLE CATEGORY ACTIONS ---
+    const handleCreateCategory = async () => {
+        if (!catNameInput) return Swal.fire('Error', 'Escribe un nombre', 'error');
         try {
             const token = localStorage.getItem('token');
-            if (isEditingCat) {
-                await axios.put(`${API_URL}/api/categories/${isEditingCat}`, catForm, { headers: { Authorization: `Bearer ${token}` } });
-                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Categoría Actualizada', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
-            } else {
-                await axios.post(`${API_URL}/api/categories`, catForm, { headers: { Authorization: `Bearer ${token}` } });
-                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Categoría Creada', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
-            }
-            setCatForm({ name: '', icon: 'Package', order: 0 });
-            setIsEditingCat(null);
+            await axios.post(`${API_URL}/api/categories`, { name: catNameInput, icon: 'Package', order: categories.length }, { headers: { Authorization: `Bearer ${token}` } });
+            setCatNameInput('');
             fetchData();
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Categoría Creada', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
         } catch (err) { }
     };
 
-    const handleEditCategory = (c) => {
-        setIsEditingCat(c._id);
-        setCatForm({ name: c.name, icon: c.icon, order: c.order });
-    };
+    const handleDeleteCategoryByName = async () => {
+        if (!catNameInput) return Swal.fire('Error', 'Escribe el nombre exacto para borrar', 'error');
+        const catToDelete = categories.find(c => c.name.toLowerCase() === catNameInput.toLowerCase());
+        if (!catToDelete) return Swal.fire('Error', 'Categoría no encontrada', 'error');
 
-    const handleDeleteCategory = async (id) => {
-        const result = await Swal.fire({ title: '¿Borrar categoría?', text: 'Cuidado: esto afectará al filtro de los productos.', icon: 'warning', showCancelButton: true, background: '#0a0a0a', color: '#fff' });
+        const result = await Swal.fire({ title: `¿Borrar "${catToDelete.name}"?`, icon: 'warning', showCancelButton: true, background: '#0a0a0a', color: '#fff' });
         if (!result.isConfirmed) return;
+
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`${API_URL}/api/categories/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.delete(`${API_URL}/api/categories/${catToDelete._id}`, { headers: { Authorization: `Bearer ${token}` } });
+            setCatNameInput('');
             fetchData();
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Categoría Eliminada', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
         } catch (err) { }
     };
 
-    // --- OTHERS ---
-    const handleCreateAnnouncement = async (e) => {
-        e.preventDefault();
-        try {
-            const token = localStorage.getItem('token');
-            await axios.post(`${API_URL}/api/announcements`, announForm, { headers: { Authorization: `Bearer ${token}` } });
-            setAnnounForm({ title: '', content: '', category: 'Update', color: 'bg-blue-500' });
-            fetchData();
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Publicado', showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff' });
-        } catch (err) { }
-    };
-
+    // --- OTHER ACTIONS ---
     const handleManualBalance = async (e) => {
         e.preventDefault();
         try {
@@ -173,30 +148,22 @@ const Admin = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
-                    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-6">
-                        <div className="p-5 bg-primary/10 rounded-[2rem] border border-primary/20 text-primary">
-                            <ShieldAlert size={40} />
-                        </div>
+                    <div className="flex items-center gap-6">
+                        <div className="p-5 bg-primary/10 rounded-[2rem] border border-primary/20 text-primary"><ShieldAlert size={40} /></div>
                         <div>
-                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">ADMINISTRATION_CORE</span>
-                            <h1 className="text-5xl font-display font-black text-white uppercase mt-1">Nexus <span className="text-primary italic">Control</span> <span className="text-[10px] text-primary align-top">v2.1</span></h1>
+                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">ADMIN_SYSTEM_V2.5</span>
+                            <h1 className="text-5xl font-display font-black text-white uppercase mt-1">Nexus <span className="text-primary italic">Control</span></h1>
                         </div>
-                    </motion.div>
+                    </div>
 
-                    <nav className="flex bg-white/5 p-2 rounded-[2rem] border border-white/5 overflow-x-auto no-scrollbar max-w-full">
+                    <nav className="flex bg-white/5 p-2 rounded-[2rem] border border-white/5 overflow-x-auto no-scrollbar">
                         {[
                             { id: 'products', name: 'Tienda', icon: LayoutGrid },
                             { id: 'categories', name: 'Categorías', icon: Layers },
-                            { id: 'announcements', name: 'Anuncios', icon: Bell },
                             { id: 'users', name: 'Usuarios', icon: Users },
                             { id: 'purchases', name: 'Ventas', icon: History }
                         ].map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-3 px-6 py-3 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest whitespace-nowrap
-                                ${activeTab === tab.id ? 'bg-primary text-white shadow-lg' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
-                            >
+                            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-3 px-6 py-3 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest ${activeTab === tab.id ? 'bg-primary text-white shadow-lg' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>
                                 <tab.icon size={14} /> {tab.name}
                             </button>
                         ))}
@@ -208,74 +175,96 @@ const Admin = () => {
                         <AnimatePresence mode="wait">
                             <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
-                                {/* FORM SIDE */}
+                                {/* LEFT COLUMN */}
                                 <div className="lg:col-span-5">
                                     <section className="glass-card rounded-[3.5rem] p-10 border border-white/5">
-                                        {activeTab === 'products' ? (
+                                        {activeTab === 'categories' ? (
+                                            <div className="space-y-8">
+                                                <div>
+                                                    <h2 className="text-xl font-black text-white uppercase tracking-tighter mb-6 flex items-center gap-3"><Layers className="text-primary" /> Gestión de Categorías</h2>
+                                                    <p className="text-xs text-gray-500 mb-6 font-bold leading-relaxed">Escribe el nombre de la sección que quieres crear (ej: VIP, Vehículos) o el nombre exacto de una existente para eliminarla.</p>
+
+                                                    <div className="space-y-4">
+                                                        <input type="text" placeholder="Nombre de categoría..." className="admin-input" value={catNameInput} onChange={e => setCatNameInput(e.target.value)} />
+                                                        <div className="flex gap-4">
+                                                            <button onClick={handleCreateCategory} className="flex-1 py-4 bg-secondary text-black rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-secondary/10">CREAR</button>
+                                                            <button onClick={handleDeleteCategoryByName} className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-primary/10">ELIMINAR</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="pt-8 border-t border-white/5">
+                                                    <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Ayuda Visual</h3>
+                                                    <div className="p-6 bg-white/[0.02] rounded-3xl border border-white/10 space-y-3">
+                                                        <div className="flex items-center gap-3 text-xs text-gray-400 font-bold"><Check size={14} className="text-secondary" /> Las categorías aparecen solas en la tienda.</div>
+                                                        <div className="flex items-center gap-3 text-xs text-gray-400 font-bold"><Check size={14} className="text-secondary" /> Puedes crear tantas como necesites.</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : activeTab === 'products' ? (
                                             <form onSubmit={handleSaveProduct} className="space-y-6">
                                                 <h2 className="text-xl font-black text-white flex items-center gap-4 uppercase tracking-tighter">
                                                     {isEditing ? <Edit3 className="text-secondary" /> : <PlusCircle className="text-primary" />}
                                                     {isEditing ? 'Editando Producto' : 'Nuevo Producto'}
                                                 </h2>
                                                 <div className="space-y-4">
-                                                    <div className="group"><p className="text-[9px] text-gray-500 font-bold uppercase mb-2 ml-4 tracking-widest">Información Básica</p>
-                                                        <input type="text" placeholder="Nombre" className="admin-input" value={prodForm.name} onChange={e => setProdForm({ ...prodForm, name: e.target.value })} required />
-                                                        <input type="number" placeholder="Precio CC" className="admin-input mt-2" value={prodForm.price} onChange={e => setProdForm({ ...prodForm, price: e.target.value })} required />
-                                                        <select className="admin-input mt-2" value={prodForm.category} onChange={e => setProdForm({ ...prodForm, category: e.target.value })} required>
-                                                            {categories.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
-                                                        </select>
-                                                    </div>
-                                                    <div className="group"><p className="text-[9px] text-gray-500 font-bold uppercase mb-2 ml-4 tracking-widest">Multimedia</p>
-                                                        <input type="text" placeholder="Imagen Principal (URL)" className="admin-input" value={prodForm.image} onChange={e => setProdForm({ ...prodForm, image: e.target.value })} required />
-                                                        <textarea placeholder="Galería (URLs extra, separadas por COMAS)" className="admin-input mt-2 min-h-[80px] text-[10px]" value={prodForm.images} onChange={e => setProdForm({ ...prodForm, images: e.target.value })} />
-                                                    </div>
-                                                    <textarea placeholder="Descripción detallada..." className="admin-input min-h-[120px]" value={prodForm.description} onChange={e => setProdForm({ ...prodForm, description: e.target.value })} required />
+                                                    <input type="text" placeholder="Nombre del Producto" className="admin-input" value={prodForm.name} onChange={e => setProdForm({ ...prodForm, name: e.target.value })} required />
+                                                    <input type="number" placeholder="Precio en CC" className="admin-input" value={prodForm.price} onChange={e => setProdForm({ ...prodForm, price: e.target.value })} required />
+                                                    <select className="admin-input" value={prodForm.category} onChange={e => setProdForm({ ...prodForm, category: e.target.value })} required>
+                                                        <option value="">-- Elige Categoría --</option>
+                                                        {categories.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
+                                                    </select>
+                                                    <input type="text" placeholder="Imagen Principal (URL)" className="admin-input" value={prodForm.image} onChange={e => setProdForm({ ...prodForm, image: e.target.value })} required />
+                                                    <textarea placeholder="Galería extra (urls separadas por coma)" className="admin-input min-h-[60px] text-[10px]" value={prodForm.images} onChange={e => setProdForm({ ...prodForm, images: e.target.value })} />
+                                                    <textarea placeholder="Descripción del artículo..." className="admin-input min-h-[120px]" value={prodForm.description} onChange={e => setProdForm({ ...prodForm, description: e.target.value })} required />
                                                 </div>
-                                                <div className="flex gap-4">
-                                                    <button type="submit" className={`flex-1 py-5 rounded-3xl font-black text-xs tracking-widest ${isEditing ? 'bg-secondary text-black' : 'btn-card-primary'}`}>
-                                                        {isEditing ? 'ACTUALIZAR ARTÍCULO' : 'PUBLICAR ARTÍCULO'}
-                                                    </button>
-                                                    {isEditing && (
-                                                        <button type="button" onClick={() => { setIsEditing(null); setProdForm({ name: '', description: '', price: '', image: '', images: '', category: categories[0]?.name || '' }); }} className="px-6 bg-white/5 text-white rounded-3xl font-black text-[10px]">CANCELAR</button>
-                                                    )}
-                                                </div>
+                                                <button type="submit" className={`w-full py-5 rounded-3xl font-black text-xs tracking-widest ${isEditing ? 'bg-secondary text-black' : 'btn-card-primary'}`}>
+                                                    {isEditing ? 'GUARDAR CAMBIOS' : 'CREAR PRODUCTO'}
+                                                </button>
+                                                {isEditing && <button type="button" onClick={() => { setIsEditing(null); setProdForm({ name: '', description: '', price: '', image: '', images: '', category: categories[0]?.name || '' }); }} className="w-full mt-2 py-3 text-gray-500 font-black text-[10px] uppercase">CANCELAR EDICIÓN</button>}
                                             </form>
-                                        ) : activeTab === 'categories' ? (
-                                            <form onSubmit={handleSaveCategory} className="space-y-6">
-                                                <h2 className="text-xl font-black text-white flex items-center gap-4 uppercase tracking-tighter">
-                                                    {isEditingCat ? <Edit3 className="text-secondary" /> : <Layers className="text-primary" />}
-                                                    {isEditingCat ? 'Editando Categoría' : 'Nueva Categoría'}
-                                                </h2>
-                                                <div className="space-y-4">
-                                                    <input type="text" placeholder="Nombre" className="admin-input" value={catForm.name} onChange={e => setCatForm({ ...catForm, name: e.target.value })} required />
-                                                    <input type="text" placeholder="Icono (Ej: Star, Car, Coins)" className="admin-input" value={catForm.icon} onChange={e => setCatForm({ ...catForm, icon: e.target.value })} />
-                                                    <input type="number" placeholder="Prioridad" className="admin-input" value={catForm.order} onChange={e => setCatForm({ ...catForm, order: e.target.value })} />
-                                                </div>
-                                                <div className="flex gap-4">
-                                                    <button type="submit" className={`flex-1 py-5 rounded-3xl font-black text-xs tracking-widest ${isEditingCat ? 'bg-secondary text-black' : 'btn-card-primary'}`}>
-                                                        {isEditingCat ? 'GUARDAR NOMBRE/ICONO' : 'CREAR CATEGORÍA'}
-                                                    </button>
-                                                    {isEditingCat && (
-                                                        <button type="button" onClick={() => { setIsEditingCat(null); setCatForm({ name: '', icon: 'Package', order: 0 }); }} className="px-6 bg-white/5 text-white rounded-3xl font-black text-[10px]">CANCELAR</button>
-                                                    )}
-                                                </div>
-                                            </form>
-                                        ) : (
-                                            <div className="py-20 text-center opacity-20"><Settings size={80} className="mx-auto mb-4" /><p className="font-black uppercase tracking-widest text-[10px]">Panel de Control Central</p></div>
-                                        )}
+                                        ) : activeTab === 'users' ? (
+                                            <div className="space-y-6">
+                                                <h2 className="text-xl font-black text-white flex items-center gap-4 uppercase tracking-tighter"><DollarSign className="text-secondary" /> Balance de Coins</h2>
+                                                <form onSubmit={handleManualBalance} className="space-y-4">
+                                                    <input type="text" placeholder="Usuario" className="admin-input" value={manualBalanceForm.username} onChange={e => setManualBalanceForm({ ...manualBalanceForm, username: e.target.value })} required />
+                                                    <input type="number" placeholder="Cantidad" className="admin-input" value={manualBalanceForm.amount} onChange={e => setManualBalanceForm({ ...manualBalanceForm, amount: e.target.value })} required />
+                                                    <div className="flex gap-2">
+                                                        <button type="button" onClick={() => setManualBalanceForm({ ...manualBalanceForm, action: 'add' })} className={`flex-1 py-3 rounded-2xl font-black text-[10px] ${manualBalanceForm.action === 'add' ? 'bg-secondary text-black' : 'bg-white/5 opacity-50'}`}>AÑADIR</button>
+                                                        <button type="button" onClick={() => setManualBalanceForm({ ...manualBalanceForm, action: 'remove' })} className={`flex-1 py-3 rounded-2xl font-black text-[10px] ${manualBalanceForm.action === 'remove' ? 'bg-primary text-white' : 'bg-white/5 opacity-50'}`}>QUITAR</button>
+                                                    </div>
+                                                    <button type="submit" className="w-full btn-card-primary py-5 rounded-3xl font-black text-xs tracking-widest">ENVIAR</button>
+                                                </form>
+                                            </div>
+                                        ) : null}
                                     </section>
                                 </div>
 
-                                {/* LIST SIDE */}
+                                {/* RIGHT COLUMN (LISTS) */}
                                 <div className="lg:col-span-7">
                                     <section className="glass-card rounded-[3.5rem] p-10 border border-white/5 min-h-[600px]">
-                                        {activeTab === 'products' ? (
+                                        {activeTab === 'categories' ? (
                                             <div className="space-y-4">
-                                                <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Inventario Global</h3>
+                                                <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Categorías Actuales</h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    {categories.map(c => (
+                                                        <div key={c._id} onClick={() => setCatNameInput(c.name)} className="p-6 bg-white/[0.02] border border-white/10 rounded-3xl hover:bg-white/[0.05] cursor-pointer transition-all flex items-center justify-between group">
+                                                            <div>
+                                                                <span className="text-xs font-black text-white uppercase tracking-tighter">{c.name}</span>
+                                                                <p className="text-[9px] text-gray-600 font-bold uppercase mt-1">Configurada</p>
+                                                            </div>
+                                                            <div className="p-3 bg-white/5 rounded-2xl text-gray-500 group-hover:text-primary"><Layers size={18} /></div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ) : activeTab === 'products' ? (
+                                            <div className="space-y-4">
+                                                <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Catálogo Disponible</h3>
                                                 {products.map(p => (
-                                                    <div key={p._id} className="flex items-center justify-between p-5 bg-white/[0.02] border border-white/5 rounded-[2rem] group hover:bg-white/[0.04]">
-                                                        <div className="flex items-center gap-4">
-                                                            <img src={p.image} className="w-12 h-12 rounded-xl object-cover" alt="" />
+                                                    <div key={p._id} className="flex items-center justify-between p-5 bg-white/[0.02] border border-white/5 rounded-[2.5rem] group hover:bg-white/[0.04]">
+                                                        <div className="flex items-center gap-5">
+                                                            <img src={p.image} className="w-14 h-14 rounded-2xl object-cover" alt="" />
                                                             <div>
                                                                 <h4 className="font-bold text-white text-sm">{p.name}</h4>
                                                                 <p className="text-[10px] font-black uppercase text-secondary tracking-widest">{p.price} CC • <span className="text-gray-600">{p.category}</span></p>
@@ -284,25 +273,6 @@ const Admin = () => {
                                                         <div className="flex gap-2">
                                                             <button onClick={() => handleEditProduct(p)} className="p-3 text-gray-500 hover:text-secondary bg-white/5 rounded-xl"><Edit3 size={18} /></button>
                                                             <button onClick={() => handleDeleteProduct(p._id)} className="p-3 text-gray-500 hover:text-primary bg-white/5 rounded-xl"><Trash2 size={18} /></button>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : activeTab === 'categories' ? (
-                                            <div className="space-y-4">
-                                                <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Arquitectura de Categorías</h3>
-                                                {categories.map(c => (
-                                                    <div key={c._id} className="flex items-center justify-between p-5 bg-white/[0.02] border border-white/5 rounded-[2rem]">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="p-3 bg-primary/10 text-primary rounded-xl"><Layers size={20} /></div>
-                                                            <div>
-                                                                <h4 className="font-bold text-white text-sm uppercase">{c.name}</h4>
-                                                                <p className="text-[10px] text-gray-600 uppercase font-bold tracking-widest">{c.icon} • Orden: {c.order}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex gap-2">
-                                                            <button onClick={() => handleEditCategory(c)} className="p-3 text-gray-500 hover:text-secondary bg-white/5 rounded-xl"><Edit3 size={18} /></button>
-                                                            <button onClick={() => handleDeleteCategory(c._id)} className="p-3 text-gray-700 hover:text-primary bg-white/5 rounded-xl"><Trash2 size={18} /></button>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -329,6 +299,7 @@ const Admin = () => {
                                         ) : null}
                                     </section>
                                 </div>
+
                             </motion.div>
                         </AnimatePresence>
                     </div>
