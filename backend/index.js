@@ -9,6 +9,7 @@ const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 const Product = require('./models/Product');
 const Log = require('./models/Log');
+const Announcement = require('./models/Announcement');
 
 const app = express();
 app.use(express.json());
@@ -214,6 +215,36 @@ app.delete('/api/products/:id', authMiddleware, adminMiddleware, async (req, res
     try {
         await Product.findByIdAndDelete(req.params.id);
         res.json({ message: 'Product deleted' });
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// --- Announcements routes ---
+app.get('/api/announcements', async (req, res) => {
+    try {
+        const announcements = await Announcement.find().sort({ date: -1 });
+        res.json(announcements);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/api/announcements', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { title, content, category, color } = req.body;
+        const newAnnouncement = new Announcement({ title, content, category, color });
+        await newAnnouncement.save();
+        res.json(newAnnouncement);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.delete('/api/announcements/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        await Announcement.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Announcement deleted' });
     } catch (err) {
         res.status(500).json({ error: 'Server error' });
     }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, LogOut, Menu, X, LogIn, Gamepad2, Coins } from 'lucide-react';
+import { ShoppingCart, LogOut, Menu, X, LogIn, Gamepad2, Coins, Shield } from 'lucide-react';
 import API_URL from '../config/api';
 
 const Navbar = () => {
@@ -24,8 +24,7 @@ window.location.href = `${API_URL}/api/auth/discord`;
 const navLinks = [
 { name: 'Inicio', path: '/' },
 { name: 'Tienda', path: '/store' },
-{ name: 'Categorías', path: '/store' },
-{ name: 'Perfil', path: '/profile' },
+{ name: 'Anuncios', path: '/announcements' },
 ];
 
 return (
@@ -69,6 +68,13 @@ return (
                             <span>{user.coins} CC</span>
                         </div>
                     </div>
+                    {user.role === 'admin' && (
+                    <Link to="/admin"
+                        className="p-3 text-[#ff2e2e] bg-[#ff2e2e]/10 rounded-xl hover:bg-[#ff2e2e]/20 transition-all"
+                        title="Panel Admin">
+                    <Shield size={20} />
+                    </Link>
+                    )}
                     <Link to="/profile"
                         className="flex items-center gap-3 p-1 pl-4 bg-white/5 rounded-2xl border border-white/5 hover:border-[#ff2e2e]/50 transition-all group">
                     <span
@@ -81,11 +87,21 @@ return (
                     </button>
                 </div>
                 ) : (
-                <button onClick={loginWithDiscord}
-                    className="flex items-center gap-3 bg-[#5865F2] hover:bg-[#4752C4] text-white px-6 py-3 rounded-xl font-bold transition-all hover:scale-[1.05] shadow-lg active:scale-95">
-                    <LogIn size={18} />
-                    Login with Discord
-                </button>
+                <div className="flex items-center gap-2">
+                    <Link to="/login"
+                        className="px-5 py-2 text-sm font-bold text-gray-400 hover:text-white transition-colors">
+                    Ingresar
+                    </Link>
+                    <Link to="/register"
+                        className="bg-[#ff2e2e] hover:bg-[#e62a2a] text-white px-6 py-2.5 rounded-xl text-sm font-black transition-all hover:scale-105 shadow-lg shadow-primary/20">
+                    REGISTRO
+                    </Link>
+                    <div className="w-px h-6 bg-white/10 mx-2"></div>
+                    <button onClick={loginWithDiscord}
+                        className="p-2.5 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-xl transition-all hover:scale-110 active:scale-95 shadow-lg">
+                        <LogIn size={20} />
+                    </button>
+                </div>
                 )}
                 <button className="p-3 text-gray-400 hover:text-white transition-colors relative">
                     <ShoppingCart size={22} />
@@ -128,14 +144,24 @@ return (
                                 <p className="text-[#ffd000] font-black">{user.coins} CC</p>
                             </div>
                         </div>
+                        {user.role === 'admin' && (
+                        <Link to="/admin" onClick={()=> setIsMobileMenuOpen(false)} className="w-full p-4 bg-primary/10
+                        text-primary rounded-2xl font-bold text-center">Panel Admin</Link>
+                        )}
                         <button onClick={logout}
-                            className="w-full p-4 bg-red-500/10 text-red-500 rounded-2xl font-bold">Logout</button>
+                            className="w-full p-4 bg-white/5 text-gray-400 rounded-2xl font-bold">Logout</button>
                     </div>
                     ) : (
-                    <button onClick={loginWithDiscord}
-                        className="w-full flex items-center justify-center gap-3 bg-[#5865F2] text-white p-5 rounded-2xl font-bold text-lg">
-                        <LogIn size={20} /> Login with Discord
-                    </button>
+                    <div className="flex flex-col gap-3">
+                        <Link to="/login" onClick={()=> setIsMobileMenuOpen(false)} className="w-full p-5 bg-white/5
+                        text-white rounded-2xl font-bold text-center">Ingresar</Link>
+                        <Link to="/register" onClick={()=> setIsMobileMenuOpen(false)} className="w-full p-5 bg-primary
+                        text-white rounded-2xl font-black text-center shadow-lg">CREAR CUENTA</Link>
+                        <button onClick={loginWithDiscord}
+                            className="w-full flex items-center justify-center gap-3 bg-[#5865F2] text-white p-5 rounded-2xl font-bold text-lg">
+                            <Gamepad2 size={20} /> Discord Login
+                        </button>
+                    </div>
                     )}
                 </div>
             </div>

@@ -8,6 +8,9 @@ import Store from './pages/Store';
 import ProductDetails from './pages/ProductDetails';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import Announcements from './pages/Announcements';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -28,6 +31,9 @@ const App = () => {
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+            <Route path="/announcements" element={<Announcements />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
