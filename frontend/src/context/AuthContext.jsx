@@ -61,10 +61,6 @@ export const AuthProvider = ({ children }) => {
         window.location.href = "/";
     };
 
-    const loginWithDiscord = () => {
-        window.location.href = `${API_URL}/api/auth/discord`;
-    };
-
     const buyProduct = async (productId) => {
         const token = localStorage.getItem("token");
         const res = await axios.post(
@@ -80,7 +76,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider
-            value={{ user, loading, login, register, logout, checkAuth, buyProduct, loginWithDiscord }}
+            value={{ user, loading, login, register, logout, checkAuth, buyProduct }}
         >
             {children}
         </AuthContext.Provider>

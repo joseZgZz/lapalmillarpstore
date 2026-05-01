@@ -22,19 +22,8 @@ const Register = () => {
         birthdate: "",
         platform: "PC",
     });
-    const { register, loginWithDiscord, checkAuth } = useAuth();
+    const { register } = useAuth();
     const navigate = useNavigate();
-
-    React.useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get("token");
-        if (token) {
-            localStorage.setItem("token", token);
-            checkAuth().then(() => {
-                navigate("/store");
-            });
-        }
-    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -174,17 +163,6 @@ const Register = () => {
                 </form>
 
                 <div className="mt-10 pt-8 border-t border-white/5 text-center">
-                    <p className="text-gray-500 font-bold mb-6">
-                        O regístrate rápidamente con
-                    </p>
-                    <button
-                        type="button"
-                        onClick={loginWithDiscord}
-                        className="w-full flex items-center justify-center gap-3 bg-[#5865F2] hover:bg-[#4752C4] text-white p-5 rounded-3xl font-black text-sm uppercase tracking-widest transition-all mb-8 shadow-xl shadow-[#5865F2]/20 hover:-translate-y-1"
-                    >
-                        <Gamepad2 size={20} /> Autenticar con Discord
-                    </button>
-
                     <p className="text-gray-500 text-sm font-medium">
                         ¿Ya tienes una cuenta?{" "}
                         <Link

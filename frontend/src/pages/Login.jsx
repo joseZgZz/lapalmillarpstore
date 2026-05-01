@@ -3,23 +3,12 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
-import { LogIn, Mail, Lock, Gamepad2, Shield } from "lucide-react";
+import { LogIn, Mail, Lock, Shield } from "lucide-react";
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: "", password: "" });
-    const { login, loginWithDiscord, checkAuth } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
-
-    React.useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get("token");
-        if (token) {
-            localStorage.setItem("token", token);
-            checkAuth().then(() => {
-                navigate("/store");
-            });
-        }
-    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -102,14 +91,6 @@ const Login = () => {
                 </form>
 
                 <div className="mt-10 pt-8 border-t border-white/5 text-center">
-                    <button
-                        type="button"
-                        onClick={loginWithDiscord}
-                        className="w-full flex items-center justify-center gap-3 bg-[#5865F2] hover:bg-[#4752C4] text-white p-5 rounded-3xl font-black text-sm uppercase tracking-widest transition-all mb-8 shadow-xl shadow-[#5865F2]/20 hover:-translate-y-1"
-                    >
-                        <Gamepad2 size={20} /> Entrar con Discord
-                    </button>
-
                     <p className="text-gray-500 text-sm font-medium">
                         ¿Nuevo en la ciudad?{" "}
                         <Link
