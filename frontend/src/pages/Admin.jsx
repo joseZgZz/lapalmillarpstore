@@ -19,7 +19,7 @@ const Admin = () => {
     const [activeTab, setActiveTab] = useState('products'); // products, announcements, users
 
     // Forms
-    const [prodForm, setProdForm] = useState({ name: '', description: '', price: '', image: '' });
+    const [prodForm, setProdForm] = useState({ name: '', description: '', price: '', image: '', category: 'VIP' });
     const [announForm, setAnnounForm] = useState({ title: '', content: '', category: 'Update', color: 'bg-blue-500' });
 
     useEffect(() => {
@@ -53,7 +53,7 @@ const Admin = () => {
                 toast: true, position: 'top-end', icon: 'success', title: 'Activo Publicado',
                 showConfirmButton: false, timer: 2000, background: '#0a0a0a', color: '#fff'
             });
-            setProdForm({ name: '', description: '', price: '', image: '' });
+            setProdForm({ name: '', description: '', price: '', image: '', category: 'VIP' });
             fetchData();
         } catch (err) { Swal.fire('Error', 'No se pudo crear el producto', 'error'); }
     };
@@ -149,6 +149,13 @@ const Admin = () => {
                                         <input type="text" placeholder="Nombre del Producto" className="admin-input" value={prodForm.name} onChange={e => setProdForm({ ...prodForm, name: e.target.value })} required />
                                         <input type="number" placeholder="Precio (Monedas)" className="admin-input" value={prodForm.price} onChange={e => setProdForm({ ...prodForm, price: e.target.value })} required />
                                         <input type="text" placeholder="URL Imagen" className="admin-input" value={prodForm.image} onChange={e => setProdForm({ ...prodForm, image: e.target.value })} required />
+                                        <select className="admin-input appearance-none" value={prodForm.category} onChange={e => setProdForm({ ...prodForm, category: e.target.value })}>
+                                            <option value="VIP">💎 Categoría: VIP</option>
+                                            <option value="Vehículos">🚗 Categoría: Vehículos</option>
+                                            <option value="Dinero">💰 Categoría: Dinero</option>
+                                            <option value="Legal">⚖️ Categoría: Legal</option>
+                                            <option value="Ilegal">🔫 Categoría: Ilegal</option>
+                                        </select>
                                         <textarea placeholder="Descripción detallada..." className="admin-input min-h-[150px] resize-none" value={prodForm.description} onChange={e => setProdForm({ ...prodForm, description: e.target.value })} required />
                                     </div>
                                     <button type="submit" className="w-full btn-card-primary py-5 rounded-3xl font-black text-lg tracking-[0.2em]">PUBLICAR ARTÍCULO</button>
@@ -191,7 +198,11 @@ const Admin = () => {
                                                     <img src={p.image} className="w-16 h-16 rounded-2xl object-cover" alt="" />
                                                     <div>
                                                         <h4 className="font-bold text-white group-hover:text-primary transition-colors">{p.name}</h4>
-                                                        <p className="text-xs text-gray-500 font-black uppercase tracking-widest mt-1">{p.price} CC</p>
+                                                        <div className="flex items-center gap-3 mt-1.5 font-black uppercase text-[10px] tracking-widest">
+                                                            <span className="text-primary">{p.price} CC</span>
+                                                            <span className="text-gray-700">•</span>
+                                                            <span className="text-blue-500">{p.category}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <button onClick={() => handleDeleteProduct(p._id)} className="p-4 text-gray-700 hover:text-primary transition-all"><Trash2 size={22} /></button>

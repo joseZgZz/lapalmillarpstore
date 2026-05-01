@@ -10,7 +10,7 @@ const Store = () => {
 const { user } = useAuth();
 const navigate = useNavigate();
 const [products, setProducts] = useState([]);
-const [categories, setCategories] = useState(['VIP', 'Vehículos', 'Armas', 'Kits', 'Dinero IC', 'Ropa']);
+const [categories, setCategories] = useState(['VIP', 'Vehículos', 'Dinero', 'Legal', 'Ilegal']);
 const [activeCategory, setActiveCategory] = useState('VIP');
 const [search, setSearch] = useState('');
 
@@ -27,9 +27,12 @@ setProducts(res.data);
 fetchProducts();
 }, []);
 
-const filteredProducts = products.filter(p =>
-(p.name.toLowerCase().includes(search.toLowerCase()) || p.description.toLowerCase().includes(search.toLowerCase()))
-);
+const filteredProducts = products.filter(p => {
+const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
+p.description.toLowerCase().includes(search.toLowerCase());
+const matchesCategory = p.category === activeCategory;
+return matchesSearch && matchesCategory;
+});
 
 return (
 <div className="min-h-screen bg-[#0a0a0a] pt-32 pb-20 relative overflow-hidden bg-grid">

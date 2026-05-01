@@ -1,0 +1,90 @@
+📖 Guía Maestra: Creación y Despliegue de Aplicaciones Web Full-Stack
+Esta guía detalla el proceso completo que seguimos para crear tu Nexus Roleplay Store, desde la carpeta vacía hasta el despliegue profesional en la nube.
+
+🏗️ FASE 1 — Arquitectura y Entorno
+Toda web moderna profesional se divide en dos partes:
+
+Backend (Servidor): El cerebro que se conecta a la base de datos.
+Frontend (Cliente): Lo que el usuario ve y toca.
+Requisitos previos:
+Node.js: Instalado para ejecutar código Javascript fuera del navegador.
+VS Code: El editor de código.
+Git: Para guardar versiones y subir a la nube.
+🧠 FASE 2 — El Cerebro (Backend)
+Usamos Node.js + Express por su rapidez y MongoDB como base de datos por su flexibilidad.
+
+Pasos:
+Inicialización: npm init -y para crear el archivo 
+package.json
+.
+Instalar dependencias: express (servidor), mongoose (base de datos), dotenv (seguridad), cors (permisos de conexión).
+Modelos de Datos: Definir qué información guardamos (Usuarios, Productos, Anuncios).
+Rutas (API): Crear los "puntos de acceso" para que el frontend pida datos (ej: /api/products).
+Seguridad: Usar bcrypt para encriptar contraseñas y JWT para que los usuarios no tengan que loguearse cada 5 segundos.
+🎨 FASE 3 — La Cara (Frontend)
+Usamos React + Vite por ser la tecnología estándar de la industria, y Tailwind CSS v4 para el diseño premium.
+
+Pasos:
+Creación: npm create vite@latest frontend (elegir React + Javascript).
+Estilo Premium: Instalamos Tailwind CSS para diseñar con clases rápidas y Framer Motion para las animaciones suaves (hover, fade-in).
+Componentes: Dividimos la web en piezas reutilizables (
+Navbar
+, 
+Footer
+, Card).
+Páginas: Creamos las vistas principales (
+Home
+, 
+Store
+, 
+Admin
+, 
+Profile
+).
+Contexto (Auth): Un archivo central (
+AuthContext.jsx
+) que sabe en todo momento si el usuario está logueado o no.
+🔗 FASE 4 — La Conexión (Integración)
+Para que el Frontend hable con el Backend:
+
+Axios: Librería para hacer peticiones al servidor.
+Configuración Centralizada: Creamos 
+api.js
+ para que solo tengamos que cambiar la URL en un sitio cuando pasemos de localhost a producción.
+🔒 FASE 5 — Seguridad y Variables (.env)
+REGLA DE ORO: Nunca guardes contraseñas o claves de API dentro del código.
+
+.env
+: Archivo secreto donde guardas la clave de tu base de datos y Discord.
+.gitignore
+: Archivo que le dice a Git: "No subas el .env ni la carpeta node_modules a internet".
+🚀 FASE 6 — Despliegue Público
+1. GitHub (El Almacen de Código)
+Creamos un repositorio privado.
+Usamos git push para subir nuestro código. Esto sirve de copia de seguridad y de enlace para los servidores.
+2. Railway (Donde vive el Backend)
+Conectamos el repositorio de GitHub.
+Configuramos las Variables de Entorno (MONGO_URI, JWT_SECRET, etc.).
+Railway nos da una URL pública estable.
+3. Vercel (Donde vive el Frontend)
+Conectamos el mismo repositorio.
+Le decimos que la carpeta raíz es frontend.
+Añadimos la variable VITE_API_URL apuntando a Railway.
+🔄 FASE 7 — Mantenimiento y Actualizaciones
+A partir de aquí, el flujo de trabajo es circular:
+
+Editamos en VS Code localmente.
+Probamos en localhost.
+Subimos con Git:
+powershell
+git add .
+git commit -m "Descripción del cambio"
+git push
+La web se actualiza sola en internet.
+🔥 Consejos para ser un Pro:
+Diseño Glassmorphism: Usa fondos con backdrop-blur y bordes semitransparentes para ese look "Apple/Premium".
+Responsive: Siempre comprueba cómo se ve tu web en un móvil.
+Seguridad: Revisa siempre tus permisos de Admin antes de publicar el panel de control.
+TIP
+
+Esta estructura es la misma que usan empresas como Facebook, Netflix o Airbnb. ¡Ya tienes una base de nivel profesional!

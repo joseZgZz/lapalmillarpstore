@@ -193,8 +193,8 @@ app.get('/api/logs', authMiddleware, adminMiddleware, async (req, res) => {
 
 app.post('/api/products', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { name, description, price, image } = req.body;
-        const newProduct = new Product({ name, description, price, image });
+        const { name, description, price, image, category } = req.body;
+        const newProduct = new Product({ name, description, price, image, category });
         await newProduct.save();
         res.json(newProduct);
     } catch (err) {

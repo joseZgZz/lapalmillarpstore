@@ -1,0 +1,42 @@
+🌟 Golden Prompt: Nexus Roleplay Store
+Copia y pega este prompt en una nueva conversación con una IA profesional para recrear este proyecto exacto desde cero:
+
+PROMPT INICIAL - COPIAR DESDE AQUÍ:
+"Crea una aplicación web Full-Stack Premium para una tienda de Roleplay de Discord con un estilo visual inspirado al 100% en Tebex (store.tebex.io). La aplicación debe dividirse en una carpeta 'backend' y otra 'frontend'.
+
+STRECK TECNOLÓGICO:
+
+Backend: Node.js, Express, MongoDB (Mongoose), JWT, Bcrypt, Axios.
+Frontend: React (Vite), Tailwind CSS v4, Framer Motion, Lucide-react.
+REQUISITOS DE DISEÑO (ESTILO PREMIUM):
+
+Tema oscuro profundo (#0a0a0a).
+Colores principales: Rojo brillante (#ff2e2e) y Amarillo oro (#ffd000).
+Estética Glassmorphism (blur, bordes sutiles, transparencias).
+Animaciones suaves con Framer Motion (fade-in, hover effects).
+Tipografía estilo Sans-serif moderna y negrita (tipo Poppins o Inter).
+MÓDULOS DEL BACKEND:
+
+Autenticación dual: Discord OAuth2 y Registro/Login manual con JWT.
+Modelos de base de datos para: Usuarios (con role y coins), Productos y Anuncios.
+Webhooks de Discord para loguear compras y registros.
+Middleware de Admin para proteger rutas sensibles.
+MÓDULOS DEL FRONTEND:
+
+Home: Banner hero impactante y productos destacados.
+Tienda: Grid de productos con filtros por categoría y página de detalles.
+Panel Admin Tabulado: Sección para Crear/Editar/Borrar productos y anuncios, y ver lista de usuarios.
+Anuncios: Feed de noticias dinámico que lea de la base de datos.
+Perfil: Dashboard de usuario con historial de compras y balance.
+Navbar/Footer: Diseño profesional con glassmorphism y notificaciones de carrito.
+REQUISITOS ADICIONALES:
+
+Configuración de API centralizada en un archivo 'api.js' para fácil despliegue.
+Archivo .gitignore robusto para excluir .env y node_modules.
+Código modular, limpio y listo para ser desplegado en Vercel y Railway."
+¿Por qué funciona este prompt?
+Este prompt no solo pide "una web", sino que define la arquitectura, el contraste de colores, las tecnologías específicas y la lógica de negocio avanzada que hemos construido. Cualquier IA avanzada entenderá exactamente el nivel de calidad que esperas.
+
+
+Comment
+Ctrl+Alt+M
