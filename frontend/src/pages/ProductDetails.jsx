@@ -35,30 +35,56 @@ const ProductDetails = () => {
         }
 
         const result = await Swal.fire({
-            title: 'Confirmar Adquisición',
-            text: `¿Estás seguro de adquirir ${product.name} por ${product.price} monedas?`,
-            icon: 'question',
+            title: '¿CONFIRMAR ADQUISICIÓN?',
+            html: `
+                <div class="text-left space-y-4">
+                    <p class="text-gray-400 text-sm">Estás a punto de canjear <span class="text-secondary font-bold">${product.price} Coins</span> por <span class="text-white font-bold">${product.name}</span>.</p>
+                    <div class="p-4 bg-primary/10 border border-primary/20 rounded-2xl">
+                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">AVISO IMPORTANTE</p>
+                        <p class="text-xs text-gray-400 leading-relaxed">Esta transacción se realiza con <b>Nexus Coins</b> (moneda virtual). Al confirmar, aceptas que esta operación es <b>FINAL Y NO REEMBOLSABLE</b> bajo ninguna circunstancia.</p>
+                    </div>
+                </div>
+            `,
+            icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Sí, adquirir ahora',
-            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'SÍ, CONOZCO LOS TÉRMINOS Y COMPRO',
+            cancelButtonText: 'CANCELAR',
             background: '#0a0a0a',
             color: '#fff',
             confirmButtonColor: '#ff2e2e',
-            cancelButtonColor: '#1a1a1a'
+            cancelButtonColor: '#1a1a1a',
+            customClass: {
+                confirmButton: 'font-black uppercase tracking-widest text-xs py-4 px-8 rounded-xl',
+                cancelButton: 'font-black uppercase tracking-widest text-xs py-4 px-8 rounded-xl'
+            }
         });
 
         if (result.isConfirmed) {
             try {
-                await buyProduct(product._id);
+                const data = await buyProduct(product._id);
                 Swal.fire({
-                    title: '¡Éxito!',
-                    text: 'Activo desbloqueado correctamente. Consulta tu inventario en el servidor.',
+                    title: '¡COMPRA EXITOSA!',
+                    html: `
+                        <div class="space-y-6">
+                            <p class="text-gray-400 text-sm">Has desbloqueado <b>${product.name}</b> satisfactoriamente.</p>
+                            <div class="p-6 bg-white/5 rounded-[2rem] border border-white/10 border-dashed">
+                                <p class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">TICKET DE TRANSACCIÓN</p>
+                                <p class="text-3xl font-black text-secondary tracking-tighter">${data.ticketNumber}</p>
+                            </div>
+                            <p class="text-[10px] text-gray-600 font-bold uppercase tracking-widest leading-relaxed">Guarda este número para cualquier reclamación o soporte técnico en Discord.</p>
+                        </div>
+                    `,
                     icon: 'success',
                     background: '#0a0a0a',
-                    color: '#fff'
+                    color: '#fff',
+                    confirmButtonText: 'ENTENDIDO',
+                    confirmButtonColor: '#ffd000',
+                    customClass: {
+                        confirmButton: 'w-full font-black uppercase tracking-widest text-xs py-4 rounded-xl'
+                    }
                 });
             } catch (err) {
-                Swal.fire('Error', err.response?.data?.message || 'Fallo en la transacción', 'error');
+                Swal.fire('Error', err.response?.data?.error || 'Fallo en la transacción', 'error');
             }
         }
     };

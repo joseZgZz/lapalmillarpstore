@@ -5,11 +5,13 @@ const cors = require('cors');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const User = require('./models/User');
 const Product = require('./models/Product');
 const Log = require('./models/Log');
 const Announcement = require('./models/Announcement');
+const Purchase = require('./models/Purchase');
 
 const app = express();
 app.use(express.json());
@@ -164,9 +166,20 @@ app.post('/api/products/buy/:id', authMiddleware, async (req, res) => {
         user.coins -= product.price;
         await user.save();
 
-        await createLog(user.username, 'Compra', `Ha comprado ${product.name} por ${product.price} monedas.`);
+        const ticketNumber = `NEXUS-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+        const purchase = new Purchase({
+            userId: user._id,
+            username: user.username,
+            productId: product._id,
+            productName: product.name,
+            price: product.price,
+            ticketNumber: ticketNumber
+        });
+        await purchase.save();
 
-        res.json({ message: 'Purchase successful', user });
+        await createLog(user.username, 'Compra', `Ha comprado ${product.name} por ${product.price} monedas. Ticket: ${ticketNumber}`);
+
+        res.json({ message: 'Purchase successful', user, ticketNumber });
     } catch (err) {
         res.status(500).json({ error: 'Server error' });
     }
@@ -177,6 +190,15 @@ app.get('/api/users', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const users = await User.find().select('-password');
         res.json(users);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.get('/api/admin/purchases', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const purchases = await Purchase.find().sort({ date: -1 });
+        res.json(purchases);
     } catch (err) {
         res.status(500).json({ error: 'Server error' });
     }

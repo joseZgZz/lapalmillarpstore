@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Database, Trash2, ShieldAlert, PlusCircle, LayoutGrid, Users,
     DollarSign, Image as ImageIcon, AlignLeft, Package, BarChart3,
-    Settings, Bell, Calendar, X, Check, Save, Zap, Coins, ChevronRight
+    Settings, Bell, Calendar, X, Check, Save, Zap, Coins, ChevronRight,
+    History, Ticket
 } from 'lucide-react';
 import API_URL from '../config/api';
 
@@ -16,7 +17,8 @@ const Admin = () => {
     const [products, setProducts] = useState([]);
     const [announcements, setAnnouncements] = useState([]);
     const [users, setUsers] = useState([]);
-    const [activeTab, setActiveTab] = useState('products'); // products, announcements, users
+    const [purchases, setPurchases] = useState([]);
+    const [activeTab, setActiveTab] = useState('products'); // products, announcements, users, purchases
 
     // Forms
     const [prodForm, setProdForm] = useState({ name: '', description: '', price: '', image: '', category: 'VIP' });
@@ -41,6 +43,9 @@ const Admin = () => {
             } else if (activeTab === 'users') {
                 const res = await axios.get(`${API_URL}/api/users`, { headers });
                 setUsers(res.data);
+            } else if (activeTab === 'purchases') {
+                const res = await axios.get(`${API_URL}/api/admin/purchases`, { headers });
+                setPurchases(res.data);
             }
         } catch (err) { }
     };
@@ -154,16 +159,17 @@ const Admin = () => {
                     </motion.div>
 
                     {/* Navigation Tabs */}
-                    <div className="flex bg-white/5 p-2 rounded-[2rem] border border-white/5">
+                    <div className="flex bg-white/5 p-2 rounded-[2rem] border border-white/5 overflow-x-auto no-scrollbar max-w-full">
                         {[
                             { id: 'products', name: 'Tienda', icon: LayoutGrid },
                             { id: 'announcements', name: 'Anuncios', icon: Bell },
-                            { id: 'users', name: 'Usuarios', icon: Users }
+                            { id: 'users', name: 'Usuarios', icon: Users },
+                            { id: 'purchases', name: 'Ventas', icon: History }
                         ].map(tab => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-3 px-8 py-3 rounded-2xl transition-all font-black text-xs uppercase tracking-widest
+                                className={`flex items-center gap-3 px-8 py-3 rounded-2xl transition-all font-black text-xs uppercase tracking-widest whitespace-nowrap
                                 ${activeTab === tab.id ? 'bg-primary text-white shadow-lg' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
                             >
                                 <tab.icon size={16} /> {tab.name}
@@ -271,8 +277,8 @@ const Admin = () => {
                                 </motion.div>
                             ) : (
                                 <div className="text-center py-20 opacity-30">
-                                    <Users size={60} className="mx-auto mb-4" />
-                                    <p className="font-black uppercase tracking-widest text-xs">Gestión de Sistema</p>
+                                    <History size={60} className="mx-auto mb-4" />
+                                    <p className="font-black uppercase tracking-widest text-xs">Historial de Ventas</p>
                                 </div>
                             )}
                         </section>
@@ -320,7 +326,7 @@ const Admin = () => {
                                             </div>
                                         ))}
                                     </motion.div>
-                                ) : (
+                                ) : activeTab === 'users' ? (
                                     <motion.div key="users" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                                         <h3 className="text-sm font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Población Registrada ({users.length})</h3>
                                         {users.map(u => (
@@ -340,6 +346,38 @@ const Admin = () => {
                                                     <span className="text-secondary font-black text-xs">{u.coins} CC</span>
                                                     <ChevronRight size={16} className="text-gray-700" />
                                                 </div>
+                                            </div>
+                                        ))}
+                                    </motion.div>
+                                ) : (
+                                    <motion.div key="purchases" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+                                        <h3 className="text-sm font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Auditoría de Transacciones ({purchases.length})</h3>
+                                        {purchases.map(pur => (
+                                            <div key={pur._id} className="p-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] group hover:bg-white/[0.04] transition-all">
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="p-3 bg-secondary/10 rounded-2xl text-secondary"><Ticket size={20} /></div>
+                                                        <div>
+                                                            <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest mb-1">ID TICKET</p>
+                                                            <h4 className="text-lg font-black text-white tracking-tighter">{pur.ticketNumber}</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest mb-1">Importe</p>
+                                                        <p className="text-secondary font-black">{pur.price} CC</p>
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                                                    <div>
+                                                        <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest mb-1">Cliente</p>
+                                                        <p className="text-sm font-bold text-white">{pur.username}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest mb-1">Producto</p>
+                                                        <p className="text-sm font-bold text-primary italic uppercase">{pur.productName}</p>
+                                                    </div>
+                                                </div>
+                                                <p className="mt-4 text-center text-[10px] font-bold text-gray-700 uppercase tracking-widest">Fecha: {new Date(pur.date).toLocaleString()}</p>
                                             </div>
                                         ))}
                                     </motion.div>

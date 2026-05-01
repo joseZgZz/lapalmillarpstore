@@ -52,8 +52,17 @@ export const AuthProvider = ({ children }) => {
         window.location.href = '/';
     };
 
+    const buyProduct = async (productId) => {
+        const token = localStorage.getItem('token');
+        const res = await axios.post(`${API_URL}/api/products/buy/${productId}`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        await checkAuth();
+        return res.data; // Includes ticketNumber
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout, checkAuth }}>
+        <AuthContext.Provider value={{ user, loading, login, register, logout, checkAuth, buyProduct }}>
             {children}
         </AuthContext.Provider>
     );
