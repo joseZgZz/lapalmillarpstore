@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Database, Trash2, ShieldAlert, PlusCircle, LayoutGrid, Users,
     DollarSign, Image as ImageIcon, AlignLeft, Package, BarChart3,
-    Settings, Bell, Calendar, X, Check, Save, Zap
+    Settings, Bell, Calendar, X, Check, Save, Zap, Coins, ChevronRight
 } from 'lucide-react';
 import API_URL from '../config/api';
 
