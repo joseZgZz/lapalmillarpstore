@@ -18,6 +18,21 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// --- DISCORD WEBHOOK HELPER ---
+const sendDiscordWebhook = async (url, embed) => {
+    if (!url) return;
+    try {
+        await axios.post(url, {
+            embeds: [{
+                ...embed,
+                color: embed.color || 0xff2e2e,
+                timestamp: new Date(),
+                footer: { text: 'Sistema de Logs | La Palmilla RP' }
+            }]
+        });
+    } catch (err) { console.error('Webhook error:', err.message); }
+};
+
 mongoose.connect(process.env.MONGO_URI)
     .then(async () => {
         console.log('MongoDB Connected');
@@ -93,6 +108,17 @@ app.post('/api/auth/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ error: 'Credenciales inválidas' });
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'secret123', { expiresIn: '7d' });
+
+        await sendDiscordWebhook(process.env.DISCORD_LOGINS_WEBHOOK, {
+            title: '🔑 Inicio de Sesión Detectado',
+            description: `El usuario **${user.username}** ha accedido a su cuenta.`,
+            fields: [
+                { name: 'Email', value: user.email, inline: true },
+                { name: 'Plataforma', value: user.platform || 'Desconocida', inline: true }
+            ],
+            color: 0x5865F2
+        });
+
         res.json({ token, message: 'Inicio de sesión exitoso' });
     } catch (err) { res.status(500).json({ error: 'Error del servidor' }); }
 });
@@ -175,6 +201,19 @@ app.post('/api/products/buy/:id', authMiddleware, async (req, res) => {
         const ticketNumber = `PALMILLA-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
         const purchase = new Purchase({ userId: user._id, username: user.username, productId: product._id, productName: product.name, price: product.price, ticketNumber });
         await purchase.save();
+
+        await sendDiscordWebhook(process.env.DISCORD_PURCHASES_WEBHOOK, {
+            title: '🛍️ Nueva Venta Realizada',
+            description: `Se ha procesado una nueva compra en la tienda.`,
+            fields: [
+                { name: '👤 Usuario', value: user.username, inline: true },
+                { name: '📦 Producto', value: product.name, inline: true },
+                { name: '💰 Precio', value: `${product.price} CC`, inline: true },
+                { name: '🎫 Ticket', value: `\`${ticketNumber}\``, inline: true }
+            ],
+            color: 0x27ae60
+        });
+
         res.json({ message: 'Purchase successful', user, ticketNumber });
     } catch (err) { res.status(500).json({ error: 'Server error' }); }
 });
