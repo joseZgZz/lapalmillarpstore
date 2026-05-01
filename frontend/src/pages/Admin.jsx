@@ -184,7 +184,7 @@ const Admin = () => {
                         </div>
                         <div>
                             <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">ADMINISTRATION_CORE</span>
-                            <h1 className="text-5xl font-display font-black text-white uppercase mt-1">Nexus <span className="text-primary italic">Control</span></h1>
+                            <h1 className="text-5xl font-display font-black text-white uppercase mt-1">Nexus <span className="text-primary italic">Control</span> <span className="text-[10px] text-primary align-top">v2</span></h1>
                         </div>
                     </motion.div>
 
