@@ -94,6 +94,29 @@ const Admin = () => {
         } catch (err) { }
     };
 
+    const handleAddCoins = async (targetUser) => {
+        const { value: amount } = await Swal.fire({
+            title: `Dar monedas a ${targetUser.username}`,
+            input: 'number',
+            inputLabel: 'Cantidad de Coins',
+            inputValue: 100,
+            showCancelButton: true,
+            background: '#0a0a0a',
+            color: '#fff',
+            confirmButtonColor: '#ffd000',
+            confirmButtonText: 'Otorgar'
+        });
+
+        if (amount) {
+            try {
+                const token = localStorage.getItem('token');
+                await axios.post(`${API_URL}/api/users/add-coins/${targetUser._id}`, { amount }, { headers: { Authorization: `Bearer ${token}` } });
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Coins Otorgados', showConfirmButton: false, timer: 1500, background: '#0a0a0a', color: '#fff' });
+                fetchData();
+            } catch (err) { Swal.fire('Error', 'No se pudo otorgar las monedas', 'error'); }
+        }
+    };
+
     if (!user || user.role !== 'admin') return <Navigate to="/" />;
 
     return (
@@ -241,6 +264,9 @@ const Admin = () => {
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-secondary font-black text-xs">{u.coins} CC</span>
+                                                    <button onClick={() => handleAddCoins(u)} className="p-2 text-gray-500 hover:text-secondary transition-all">
+                                                        <PlusCircle size={18} />
+                                                    </button>
                                                 </div>
                                             </div>
                                         ))}

@@ -182,6 +182,22 @@ app.get('/api/users', authMiddleware, adminMiddleware, async (req, res) => {
     }
 });
 
+app.post('/api/users/add-coins/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { amount } = req.body;
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        user.coins += parseInt(amount);
+        await user.save();
+
+        await createLog('ADMIN', 'Coins Grant', `Admin ha otorgado ${amount} monedas a ${user.username}.`);
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 app.get('/api/logs', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const logs = await Log.find().sort({ date: -1 }).limit(100);
