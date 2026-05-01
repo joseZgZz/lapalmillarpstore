@@ -1,0 +1,33 @@
+# =============================================
+# DISCORD ROLEPLAY STORE - .gitignore
+# =============================================
+
+# Node modules (no se sube, se instala con npm install)
+node_modules/
+*/node_modules/
+
+# Variables de entorno (NUNCA subir al repositorio)
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Archivos de build
+dist/
+build/
+.next/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Cache
+.vite/
+.cache/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json

@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ff2e2e;
+  --color-secondary: #ffd000;
+  --color-background: #0a0a0a;
+}
+
+/* Force dark mode background immediately */
+html,
+body {
+  background-color: #0a0a0a !important;
+  color: #ffffff !important;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#root {
+  min-height: 100%;
+}
+
+.glass-card {
+  background-color: #111111;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bg-grid {
+  background-size: 30px 30px;
+  background-image: linear-gradient(to right, rgba(255, 46, 46, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 46, 46, 0.02) 1px, transparent 1px);
+}
