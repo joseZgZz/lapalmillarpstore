@@ -16,12 +16,50 @@ import {
   Clock,
   Monitor,
   Gamepad2,
+  Link as LinkIcon,
+  Save,
 } from "lucide-react";
+import Swal from "sweetalert2";
 import API_URL from "../config/api";
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, checkAuth } = useAuth();
   const [logs, setLogs] = useState([]);
+  const [linkForm, setLinkForm] = useState({
+    pcUsername: "",
+    consoleUsername: ""
+  });
+
+  useEffect(() => {
+    if (user) {
+      setLinkForm({
+        pcUsername: user.pcUsername || "",
+        consoleUsername: user.consoleUsername || ""
+      });
+    }
+  }, [user]);
+
+  const handleUpdateLinks = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.patch(`${API_URL}/api/users/profile/link`, linkForm, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      await checkAuth();
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Cuentas vinculadas',
+        showConfirmButton: false,
+        timer: 3000,
+        background: '#0a0a0a',
+        color: '#fff'
+      });
+    } catch (err) {
+      Swal.fire('Error', 'Fallo al vincular', 'error');
+    }
+  };
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -140,6 +178,42 @@ const Profile = () => {
               <button className="w-full btn-card-primary py-4 text-xs font-black uppercase tracking-widest shadow-xl">
                 RECARGAR MONEDAS CC
               </button>
+            </section>
+
+            <section className="glass-card rounded-[2.5rem] p-8 border border-white/5">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  Vincular Cuentas
+                </h3>
+                <div className="p-2 bg-white/5 rounded-xl text-secondary">
+                  <LinkIcon size={16} />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="relative group">
+                  <Monitor className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-secondary transition-colors" size={16} />
+                  <input
+                    type="text"
+                    placeholder="ID de PC (Steam/Epic)"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-secondary/50 font-bold"
+                    value={linkForm.pcUsername}
+                    onChange={(e) => setLinkForm({ ...linkForm, pcUsername: e.target.value })}
+                  />
+                </div>
+                <div className="relative group">
+                  <Gamepad2 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-primary transition-colors" size={16} />
+                  <input
+                    type="text"
+                    placeholder="ID de Consola (PSN/Xbox)"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 font-bold"
+                    value={linkForm.consoleUsername}
+                    onChange={(e) => setLinkForm({ ...linkForm, consoleUsername: e.target.value })}
+                  />
+                </div>
+                <button onClick={handleUpdateLinks} className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+                  <Save size={14} /> Guardar Vinculación
+                </button>
+              </div>
             </section>
 
             <section className="glass-card rounded-[2.5rem] p-8 border border-white/5">

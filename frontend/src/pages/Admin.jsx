@@ -529,6 +529,16 @@ const Admin = () => {
                                                         <button onClick={() => handleCoinsAction("remove")} className="px-6 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase hover:bg-white transition-all whitespace-nowrap font-bold">QUITAR</button>
                                                     </div>
                                                 </div>
+                                                <div className="grid grid-cols-2 gap-4 mt-6">
+                                                    <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                                                        <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">ID PC Vinculado</p>
+                                                        <p className="text-xs font-bold text-white">{selectedUserForAction.pcUsername || 'No vinculado'}</p>
+                                                    </div>
+                                                    <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                                                        <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">ID Consola Vinculado</p>
+                                                        <p className="text-xs font-bold text-white">{selectedUserForAction.consoleUsername || 'No vinculado'}</p>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             {/* Compras del Usuario */}

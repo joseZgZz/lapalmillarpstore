@@ -8,7 +8,9 @@ const userSchema = new mongoose.Schema({
     avatar: { type: String, default: 'https://ui-avatars.com/api/?name=User&background=random' },
     coins: { type: Number, default: 0 },
     role: { type: String, default: 'user' },
-    platform: { type: String, enum: ['PC', 'Consola'], default: 'PC' }
+    platform: { type: String, enum: ['PC', 'Consola'], default: 'PC' },
+    pcUsername: { type: String, default: '' },
+    consoleUsername: { type: String, default: '' }
 });
 
 module.exports = mongoose.model('User', userSchema);
