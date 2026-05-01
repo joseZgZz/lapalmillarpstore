@@ -13,6 +13,7 @@ import Store from "./pages/Store";
 import ProductDetails from "./pages/ProductDetails";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import BattlePass from "./pages/BattlePass";
 import Announcements from "./pages/Announcements";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -50,6 +51,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route path="/battlepass" element={<BattlePass />} />
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

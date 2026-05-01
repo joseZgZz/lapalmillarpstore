@@ -252,6 +252,50 @@ app.get('/api/users', authMiddleware, adminMiddleware, async (req, res) => {
     } catch (err) { res.status(500).json({ error: 'Server error' }); }
 });
 
+// --- BATTLE PASS SYSTEM ---
+const BP_REWARDS = [
+    { level: 1, name: "Kit de Bienvenida PC", prize: "500 CC" },
+    { level: 2, name: "Vehículo Básico", prize: "Habanero" },
+    { level: 3, name: "Bonus de Dinero", prize: "1000 CC" },
+    { level: 4, name: "Caja Sorpresa", prize: "Lootbox Bronce" },
+    { level: 5, name: "Kit VIP Temporal", prize: "3 Días VIP" },
+];
+
+app.post('/api/battlepass/claim', authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (user.platform !== 'PC') return res.status(403).json({ error: 'Solo para usuarios de PC' });
+
+        const now = new Date();
+        const lastClaimed = user.battlePass.lastClaimed;
+
+        if (lastClaimed) {
+            const diffHours = (now - lastClaimed) / (1000 * 60 * 60);
+            if (diffHours < 24) {
+                const wait = Math.ceil(24 - diffHours);
+                return res.status(400).json({ error: `Debes esperar ${wait} horas para el siguiente nivel` });
+            }
+        }
+
+        const currentLvl = user.battlePass.currentLevel;
+        if (currentLvl > BP_REWARDS.length) return res.status(400).json({ error: 'Has completado todos los niveles' });
+
+        const reward = BP_REWARDS.find(r => r.level === currentLvl);
+
+        // Entregar premio si es CC
+        if (reward.prize.includes('CC')) {
+            const amount = parseInt(reward.prize);
+            user.coins += amount;
+        }
+
+        user.battlePass.currentLevel += 1;
+        user.battlePass.lastClaimed = now;
+        await user.save();
+
+        res.json({ message: '¡Recompensa reclamada!', user, reward });
+    } catch (err) { res.status(500).json({ error: 'Error del servidor' }); }
+});
+
 app.post('/api/users/manage-coins', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const { username, amount, action } = req.body;

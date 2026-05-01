@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Search, Filter, Coins, Check, Tag as TagIcon, Package, ChevronRight, Zap, Star, Car, Scale,
-ShieldAlert, Layers } from 'lucide-react';
+ShieldAlert, Layers, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import API_URL from '../config/api';
 
@@ -108,7 +108,22 @@ return (
                     </div>
                 </div>
 
-                <div className="glass-card rounded-3xl p-6 border border-white/5 text-center">
+                {user?.platform === 'PC' && (
+                <button onClick={()=> navigate('/battlepass')}
+                    className="w-full mt-6 bg-gradient-to-r from-primary to-[#ff6b6b] p-6 rounded-[2rem] text-left group
+                    overflow-hidden relative"
+                    >
+                    <div className="relative z-10">
+                        <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Especial</p>
+                        <h4 className="text-xl font-black text-white uppercase italic">Pase de <span
+                                className="text-white/60 not-italic">Batalla</span></h4>
+                    </div>
+                    <Trophy
+                        className="absolute right-[-10px] bottom-[-10px] w-24 h-24 text-white/10 group-hover:rotate-12 transition-transform" />
+                </button>
+                )}
+
+                <div className="glass-card rounded-3xl p-6 border border-white/5 text-center mt-6">
                     <Zap size={32} className="text-secondary mx-auto mb-4" />
                     <h4 className="text-sm font-black text-white uppercase tracking-tighter mb-2">Acceso Premium</h4>
                     <p className="text-xs text-gray-500 font-medium leading-relaxed">Únete a nuestro club VIP y obtén un

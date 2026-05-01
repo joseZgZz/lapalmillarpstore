@@ -12,7 +12,11 @@ const userSchema = new mongoose.Schema({
     pcUsername: { type: String, default: '' },
     consoleUsername: { type: String, default: '' },
     discordUsername: { type: String, default: '' },
-    discordId: { type: String, default: '' }
+    discordId: { type: String, default: '' },
+    battlePass: {
+        currentLevel: { type: Number, default: 1 },
+        lastClaimed: { type: Date, default: null }
+    }
 });
 
 module.exports = mongoose.model('User', userSchema);
