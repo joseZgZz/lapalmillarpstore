@@ -65,11 +65,11 @@ const Register = () => {
                 className="max-w-md w-full glass-card rounded-[3rem] p-10 border border-white/5 relative z-10"
             >
                 <div className="flex flex-col items-center mb-10 text-center">
-                    <div className="p-4 bg-primary/10 rounded-2xl text-primary mb-6 ring-1 ring-primary/20">
-                        <UserPlus size={40} />
+                    <div className="mb-6">
+                        <img src="/logo.png" alt="Logo" className="w-24 h-24 object-contain drop-shadow-[0_0_20px_rgba(255,46,46,0.2)]" />
                     </div>
                     <h1 className="text-4xl font-display font-black text-white italic tracking-tighter uppercase mb-2">
-                        Crear <span className="text-primary">Cuenta</span>
+                        Crear <span className="text-primary italic">Cuenta</span>
                     </h1>
                     <p className="text-gray-500 font-medium">
                         Únete a la nueva era del Roleplay premium.

@@ -248,8 +248,8 @@ const Admin = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <header className="mb-16">
                     <div className="flex items-center gap-6">
-                        <div className="p-5 bg-primary/10 rounded-[2.5rem] border border-primary/20 text-primary">
-                            <ShieldAlert size={40} />
+                        <div className="w-20 h-20 overflow-hidden rounded-2xl drop-shadow-[0_0_20px_rgba(255,46,46,0.2)]">
+                            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                         </div>
                         <div>
                             <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">

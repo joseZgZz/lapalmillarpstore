@@ -40,9 +40,8 @@ return (
             ? "shadow-2xl shadow-black/50 bg-[#0a0a0a]/90 backdrop-blur-xl" : "bg-[#0a0a0a]/40" }`}>
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
-            <div
-                className="w-10 h-10 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:rotate-12 transition-transform">
-                <Zap className="text-white fill-white" size={20} />
+            <div className="w-12 h-12 overflow-hidden rounded-xl transition-transform group-hover:scale-110">
+                <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-2xl font-display font-black text-white tracking-tighter uppercase italic">
                 LA PALMILLA <span className="text-primary not-italic">RP</span>

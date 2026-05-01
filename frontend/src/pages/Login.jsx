@@ -41,11 +41,11 @@ const Login = () => {
                 className="max-w-md w-full glass-card rounded-[3rem] p-12 border border-white/5 relative z-10"
             >
                 <div className="flex flex-col items-center mb-10 text-center">
-                    <div className="p-4 bg-[#ffd000]/10 rounded-2xl text-[#ffd000] mb-6 ring-1 ring-[#ffd000]/20">
-                        <Shield size={40} />
+                    <div className="mb-6">
+                        <img src="/logo.png" alt="Logo" className="w-24 h-24 object-contain drop-shadow-[0_0_20px_rgba(255,46,46,0.2)]" />
                     </div>
                     <h1 className="text-4xl font-display font-black text-white italic tracking-tighter uppercase mb-2">
-                        Acceso <span className="text-secondary">Seguro</span>
+                        Bienvenido <span className="text-primary italic">De Nuevo</span>
                     </h1>
                     <p className="text-gray-500 font-medium whitespace-nowrap">
                         Gestiona tus activos y recompensas premium.
