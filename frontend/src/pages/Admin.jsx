@@ -531,8 +531,13 @@ const Admin = () => {
                                                                 <div className="flex items-center gap-4">
                                                                     <div className="p-2 bg-primary/20 rounded-lg text-primary"><Package size={16} /></div>
                                                                     <div>
-                                                                        <p className="text-sm font-bold text-white">{p.productName}</p>
-                                                                        <p className="text-xs text-gray-500">{new Date(p.date).toLocaleDateString()}</p>
+                                                                        <p className="text-sm font-bold text-white">{p.productName || "Artículo"}</p>
+                                                                        <div className="flex items-center gap-2 mt-1">
+                                                                            <code className="text-[9px] font-bold text-gray-400 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
+                                                                                {p.ticketNumber || `#HASH-${p._id?.slice(-10).toUpperCase()}`}
+                                                                            </code>
+                                                                            <p className="text-[10px] text-gray-500">{new Date(p.date).toLocaleDateString()}</p>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                                 <span className="text-sm font-black text-gray-400">-{p.price} CC</span>
