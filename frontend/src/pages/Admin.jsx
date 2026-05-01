@@ -21,6 +21,7 @@ const Admin = () => {
     // Forms
     const [prodForm, setProdForm] = useState({ name: '', description: '', price: '', image: '', category: 'VIP' });
     const [announForm, setAnnounForm] = useState({ title: '', content: '', category: 'Update', color: 'bg-blue-500' });
+    const [selectedUser, setSelectedUser] = useState(null);
 
     useEffect(() => {
         if (user && user.role === 'admin') fetchData();
@@ -117,6 +118,25 @@ const Admin = () => {
         }
     };
 
+    const handleDeleteUser = async (id) => {
+        const result = await Swal.fire({
+            title: '¿ELIMINAR USUARIO?',
+            text: "Esta acción es irreversible y borrará todos sus datos.",
+            icon: 'warning', showCancelButton: true,
+            background: '#0a0a0a', color: '#fff', confirmButtonColor: '#ff2e2e',
+            confirmButtonText: 'SÍ, ELIMINAR'
+        });
+        if (!result.isConfirmed) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete(`${API_URL}/api/users/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+            setSelectedUser(null);
+            fetchData();
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Usuario Eliminado', showConfirmButton: false, timer: 1500, background: '#0a0a0a', color: '#fff' });
+        } catch (err) { Swal.fire('Error', err.response?.data?.error || 'No se pudo eliminar', 'error'); }
+    };
+
     if (!user || user.role !== 'admin') return <Navigate to="/" />;
 
     return (
@@ -199,10 +219,39 @@ const Admin = () => {
                                     </div>
                                     <button type="submit" className="w-full btn-card-primary py-5 rounded-3xl font-black text-lg tracking-[0.2em] !bg-blue-500">POSTEAR ANUNCIO</button>
                                 </form>
+                            ) : activeTab === 'users' && selectedUser ? (
+                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+                                    <h2 className="text-xl font-black text-white mb-8 flex items-center gap-4 uppercase tracking-tighter">
+                                        <Settings className="text-secondary" /> Control de Usuario
+                                    </h2>
+
+                                    <div className="flex flex-col items-center p-8 bg-white/5 rounded-3xl border border-white/5">
+                                        <img src={selectedUser.avatar} className="w-24 h-24 rounded-[2rem] mb-4 border-2 border-secondary/50 p-1" alt="" />
+                                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter leading-none">{selectedUser.username}</h3>
+                                        <p className="text-gray-500 font-bold text-xs mt-2">{selectedUser.email}</p>
+                                        <div className="mt-6 flex items-center gap-2 px-4 py-2 bg-secondary/10 text-secondary rounded-full border border-secondary/20">
+                                            <Coins size={14} />
+                                            <span className="font-black text-sm">{selectedUser.coins} CC</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <button onClick={() => handleAddCoins(selectedUser)} className="flex flex-col items-center justify-center gap-3 p-6 bg-secondary/10 border border-secondary/20 rounded-3xl hover:bg-secondary/20 transition-all group">
+                                            <PlusCircle className="text-secondary group-hover:scale-110 transition-transform" size={32} />
+                                            <span className="text-[10px] font-black text-white uppercase tracking-widest">Gestionar Saldo</span>
+                                        </button>
+                                        <button onClick={() => handleDeleteUser(selectedUser._id)} className="flex flex-col items-center justify-center gap-3 p-6 bg-primary/10 border border-primary/20 rounded-3xl hover:bg-primary/20 transition-all group">
+                                            <Trash2 className="text-primary group-hover:scale-110 transition-transform" size={32} />
+                                            <span className="text-[10px] font-black text-white uppercase tracking-widest text-center">Borrar Cuenta</span>
+                                        </button>
+                                    </div>
+
+                                    <button onClick={() => setSelectedUser(null)} className="w-full py-4 border border-white/5 text-gray-500 rounded-2xl text-xs font-black uppercase tracking-[0.3em] hover:text-white transition-colors">Cerrar Gestión</button>
+                                </motion.div>
                             ) : (
                                 <div className="text-center py-20 opacity-30">
                                     <Users size={60} className="mx-auto mb-4" />
-                                    <p className="font-black uppercase tracking-widest text-xs">Gestión de Usuarios Activa</p>
+                                    <p className="font-black uppercase tracking-widest text-xs">{activeTab === 'users' ? 'Selecciona un usuario de la lista' : 'Gestión de Sistema'}</p>
                                 </div>
                             )}
                         </section>
@@ -254,7 +303,11 @@ const Admin = () => {
                                     <motion.div key="users" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                                         <h3 className="text-sm font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Población Registrada ({users.length})</h3>
                                         {users.map(u => (
-                                            <div key={u._id} className="flex items-center justify-between p-5 bg-white/[0.01] border border-white/5 rounded-3xl">
+                                            <div
+                                                key={u._id}
+                                                onClick={() => setSelectedUser(u)}
+                                                className={`flex items-center justify-between p-5 border rounded-3xl cursor-pointer transition-all ${selectedUser?._id === u._id ? 'bg-secondary/10 border-secondary/50' : 'bg-white/[0.01] border-white/5 hover:border-white/20'}`}
+                                            >
                                                 <div className="flex items-center gap-5">
                                                     <img src={u.avatar} className="w-10 h-10 rounded-xl" alt="" />
                                                     <div>
@@ -264,9 +317,7 @@ const Admin = () => {
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-secondary font-black text-xs">{u.coins} CC</span>
-                                                    <button onClick={() => handleAddCoins(u)} className="p-2 text-gray-500 hover:text-secondary transition-all">
-                                                        <PlusCircle size={18} />
-                                                    </button>
+                                                    <ChevronRight size={16} className="text-gray-700" />
                                                 </div>
                                             </div>
                                         ))}

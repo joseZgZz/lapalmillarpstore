@@ -198,6 +198,19 @@ app.post('/api/users/add-coins/:id', authMiddleware, adminMiddleware, async (req
     }
 });
 
+app.delete('/api/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        if (req.params.id === req.user.id) {
+            return res.status(400).json({ error: 'No puedes eliminarte a ti mismo.' });
+        }
+        const user = await User.findByIdAndDelete(req.params.id);
+        await createLog('ADMIN', 'User Deletion', `Admin ha eliminado la cuenta de ${user.username}.`);
+        res.json({ message: 'Usuario eliminado' });
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 app.get('/api/logs', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const logs = await Log.find().sort({ date: -1 }).limit(100);
