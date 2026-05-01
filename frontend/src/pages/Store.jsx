@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Search, Filter, Coins, Check, Tag as TagIcon, Package, ChevronRight, Zap } from 'lucide-react';
+import { ShoppingCart, Search, Filter, Coins, Check, Tag as TagIcon, Package, ChevronRight, Zap, Star, Car, Scale,
+ShieldAlert, Layers } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import API_URL from '../config/api';
 
@@ -10,21 +11,34 @@ const Store = () => {
 const { user } = useAuth();
 const navigate = useNavigate();
 const [products, setProducts] = useState([]);
-const [categories, setCategories] = useState(['VIP', 'Vehículos', 'Dinero', 'Legal', 'Ilegal']);
-const [activeCategory, setActiveCategory] = useState('VIP');
+const [categories, setCategories] = useState([]);
+const [activeCategory, setActiveCategory] = useState('');
 const [search, setSearch] = useState('');
 
+const iconMap = {
+Star: Star,
+Car: Car,
+Coins: Coins,
+Scale: Scale,
+ShieldAlert: ShieldAlert,
+Package: Package,
+Layers: Layers
+};
+
 useEffect(() => {
-const fetchProducts = async () => {
+const fetchData = async () => {
 try {
 const token = localStorage.getItem('token');
-const res = await axios.get(`${API_URL}/api/products`, {
-headers: { Authorization: token ? `Bearer ${token}` : '' }
-});
-setProducts(res.data);
+const [prodRes, catRes] = await Promise.all([
+axios.get(`${API_URL}/api/products`, { headers: { Authorization: token ? `Bearer ${token}` : '' } }),
+axios.get(`${API_URL}/api/categories`)
+]);
+setProducts(prodRes.data);
+setCategories(catRes.data);
+if (catRes.data.length > 0) setActiveCategory(catRes.data[0].name);
 } catch (err) { }
 };
-fetchProducts();
+fetchData();
 }, []);
 
 const filteredProducts = products.filter(p => {
@@ -61,9 +75,8 @@ return (
                         </div>
                     </div>
                     <button
-                        className="w-full py-3 bg-white/5 border border-white/10 rounded-xl font-bold text-xs hover:bg-white/10 transition-all">
-                        RECARGAR MONEDAS
-                    </button>
+                        className="w-full py-3 bg-white/5 border border-white/10 rounded-xl font-bold text-xs hover:bg-white/10 transition-all">RECARGAR
+                        MONEDAS</button>
                 </div>
                 )}
 
@@ -71,24 +84,24 @@ return (
                     <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] px-4 mb-4 mt-2">
                         Navegación</h3>
                     <div className="space-y-1">
-                        {categories.map(cat => (
-                        <button key={cat} onClick={()=> setActiveCategory(cat)}
+                        {categories.map(cat => {
+                        const Icon = iconMap[cat.icon] || Package;
+                        return (
+                        <button key={cat._id} onClick={()=> setActiveCategory(cat.name)}
                             className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl font-bold
-                            transition-all group ${
-                            activeCategory === cat
-                            ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                            : 'text-gray-400 hover:text-white hover:bg-white/5'
-                            }`}
+                            transition-all group ${activeCategory === cat.name ? 'bg-primary text-white shadow-lg
+                            shadow-primary/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
                             >
                             <div className="flex items-center gap-3">
-                                <TagIcon size={18} className={activeCategory===cat ? 'text-white'
+                                <Icon size={18} className={activeCategory===cat.name ? 'text-white'
                                     : 'text-gray-600 group-hover:text-primary' } />
-                                <span className="text-sm">{cat}</span>
+                                <span className="text-sm capitalize">{cat.name}</span>
                             </div>
-                            {activeCategory === cat &&
+                            {activeCategory === cat.name &&
                             <Check size={14} />}
                         </button>
-                        ))}
+                        );
+                        })}
                     </div>
                 </div>
 
@@ -106,8 +119,7 @@ return (
             <div className="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-5xl font-display font-black text-white tracking-tighter uppercase mb-2">TIENDA
-                        <span className="text-primary italic">NEXUS</span>
-                    </h1>
+                        <span className="text-primary italic">NEXUS</span></h1>
                     <div className="flex items-center gap-2 text-gray-500">
                         <span className="text-xs font-bold uppercase tracking-widest">{activeCategory}</span>
                         <ChevronRight size={12} />
@@ -120,8 +132,7 @@ return (
                         className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-primary transition-colors" />
                     <input type="text" placeholder="Buscar..."
                         className="bg-[#111] border border-white/10 rounded-2xl pl-12 pr-6 py-4 text-white focus:outline-none focus:border-primary transition-all w-full sm:w-80 shadow-2xl"
-                        value={search} onChange={e=> setSearch(e.target.value)}
-                    />
+                        value={search} onChange={e=> setSearch(e.target.value)} />
                 </div>
             </div>
 
@@ -137,8 +148,7 @@ return (
                     filteredProducts.map((p) => (
                     <motion.div key={p._id} whileHover={{ y: -5 }} onClick={()=> navigate(`/product/${p._id}`)}
                         className="glass-card rounded-[2.5rem] overflow-hidden group cursor-pointer border
-                        border-white/5 hover:border-primary/50 transition-all flex flex-col"
-                        >
+                        border-white/5 hover:border-primary/50 transition-all flex flex-col">
                         <div className="h-60 relative overflow-hidden bg-black/40">
                             <img src={p.image}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
@@ -164,9 +174,7 @@ return (
                                             className="text-[10px] text-gray-500">CC</span></span>
                                 </div>
                                 <button
-                                    className="btn-card-primary px-8 py-3.5 text-xs uppercase tracking-widest font-black">
-                                    ADQUIRIR
-                                </button>
+                                    className="btn-card-primary px-8 py-3.5 text-xs uppercase tracking-widest font-black">ADQUIRIR</button>
                             </div>
                         </div>
                     </motion.div>
