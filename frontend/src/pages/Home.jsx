@@ -17,6 +17,7 @@ import {
     Briefcase,
 } from "lucide-react";
 import API_URL from "../config/api";
+import { getProxiedImage } from "../config/imageProxy";
 
 const Home = () => {
     const { user, login } = useAuth();
@@ -323,9 +324,10 @@ const Home = () => {
                             >
                                 <div className="h-56 relative overflow-hidden bg-black/40">
                                     <img
-                                        src={product.image}
+                                        src={getProxiedImage(product.image)}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                         alt=""
+                                        onError={(e) => { e.target.onerror = null; e.target.style.opacity = '0'; }}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] to-transparent opacity-60"></div>
                                     <div className="absolute top-4 left-4 bg-primary text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">

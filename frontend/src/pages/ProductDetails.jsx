@@ -18,6 +18,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import API_URL from "../config/api";
+import { getProxiedImage } from "../config/imageProxy";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -35,7 +36,7 @@ const ProductDetails = () => {
           headers: { Authorization: token ? `Bearer ${token}` : "" },
         });
         setProduct(res.data);
-      } catch (err) {}
+      } catch (err) { }
       setLoading(false);
     };
     fetchProduct();
@@ -167,9 +168,10 @@ const ProductDetails = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  src={allImages[activeImg]}
+                  src={getProxiedImage(allImages[activeImg])}
                   className="w-full h-auto min-h-[500px] object-cover"
                   alt=""
+                  onError={(e) => { e.target.onerror = null; e.target.style.opacity = '0.05'; }}
                 />
               </AnimatePresence>
               <div className="absolute top-8 left-8 z-20">
@@ -189,9 +191,10 @@ const ProductDetails = () => {
                     className={`shrink-0 w-24 h-24 rounded-2xl overflow-hidden border-2 transition-all ${activeImg === idx ? "border-primary" : "border-white/5 opacity-50 hover:opacity-100"}`}
                   >
                     <img
-                      src={img}
+                      src={getProxiedImage(img)}
                       className="w-full h-full object-cover"
                       alt=""
+                      onError={(e) => { e.target.onerror = null; e.target.style.opacity = '0'; }}
                     />
                   </button>
                 ))}

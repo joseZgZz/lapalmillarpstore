@@ -18,6 +18,34 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// --- IMAGE PROXY (bypasses hotlink blocks from Unsplash/external CDNs) ---
+app.get('/api/image-proxy', async (req, res) => {
+    const { url } = req.query;
+    if (!url) return res.status(400).send('Missing url param');
+    try {
+        const response = await axios.get(url, {
+            responseType: 'stream',
+            timeout: 8000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
+                'Referer': 'https://unsplash.com/',
+                'Accept': 'image/webp,image/avif,image/*,*/*'
+            }
+        });
+        const contentType = response.headers['content-type'] || 'image/jpeg';
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // cache 24h
+        response.data.pipe(res);
+    } catch (err) {
+        // Return a dark placeholder SVG on error instead of a broken image
+        res.setHeader('Content-Type', 'image/svg+xml');
+        res.send(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+            <rect width="600" height="400" fill="#111111"/>
+            <text x="50%" y="50%" fill="#333" font-family="sans-serif" font-size="14" text-anchor="middle" dominant-baseline="middle">Sin imagen</text>
+        </svg>`);
+    }
+});
+
 // --- DISCORD WEBHOOK HELPER ---
 const sendDiscordWebhook = async (url, embed) => {
     if (!url) return;
