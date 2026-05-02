@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import API_URL from '../config/api';
-import { getProxiedImage } from '../config/imageProxy';
+import { getProxiedImage, FALLBACK_IMAGE } from '../config/imageProxy';
 
 const Store = () => {
     const { user } = useAuth();
@@ -176,7 +176,8 @@ const Store = () => {
                                             <img src={getProxiedImage(p.image)}
                                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 alt={p.name}
-                                                onError={(e) => { e.target.onerror = null; e.target.src = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'><rect width='600' height='400' fill='%23111'/><text x='50%25' y='50%25' fill='%23333' font-family='sans-serif' text-anchor='middle' dominant-baseline='middle'>Sin imagen</text></svg>`; }}
+                                                referrerPolicy="no-referrer"
+                                                onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_IMAGE; }}
                                             />
                                             <div className="absolute top-6 left-6 z-20">
                                                 <div

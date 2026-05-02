@@ -18,7 +18,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import API_URL from "../config/api";
-import { getProxiedImage } from "../config/imageProxy";
+import { getProxiedImage, FALLBACK_IMAGE } from "../config/imageProxy";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -171,7 +171,8 @@ const ProductDetails = () => {
                   src={getProxiedImage(allImages[activeImg])}
                   className="w-full h-auto min-h-[500px] object-cover"
                   alt=""
-                  onError={(e) => { e.target.onerror = null; e.target.style.opacity = '0.05'; }}
+                  referrerPolicy="no-referrer"
+                  onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_IMAGE; }}
                 />
               </AnimatePresence>
               <div className="absolute top-8 left-8 z-20">
@@ -194,7 +195,8 @@ const ProductDetails = () => {
                       src={getProxiedImage(img)}
                       className="w-full h-full object-cover"
                       alt=""
-                      onError={(e) => { e.target.onerror = null; e.target.style.opacity = '0'; }}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_IMAGE; }}
                     />
                   </button>
                 ))}
